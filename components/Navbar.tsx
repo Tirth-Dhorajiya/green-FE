@@ -59,29 +59,10 @@ export default function Navbar() {
               Home
             </Link>
             <Link
-              href="/home-v2"
-              className={`text-sm font-semibold px-4 py-2 rounded-xl transition-all duration-300 ${isActive('/home-v2') ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-foreground/70 dark:text-gray-300 hover:text-primary dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5'}`}
-            >
-              V2
-            </Link>
-            <Link
-              href="/home-v3"
-              className={`text-sm font-bold px-4 py-2 rounded-xl transition-all duration-300 border flex items-center ${isActive('/home-v3') ? 'bg-primary text-white shadow-lg shadow-primary/20 border-primary' : 'bg-primary/10 text-primary dark:bg-primary/20 hover:bg-primary hover:text-white border-primary/20'}`}
-            >
-              <span className={`w-2 h-2 rounded-full mr-2 animate-pulse ${isActive('/home-v3') ? 'bg-white' : 'bg-primary'}`} />
-              V3 (3D)
-            </Link>
-            <Link
               href="/products"
               className={`text-sm font-semibold px-4 py-2 rounded-xl transition-all duration-300 ${isActive('/products') ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-foreground/70 dark:text-gray-300 hover:text-primary dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5'}`}
             >
               Shop
-            </Link>
-            <Link
-              href="/products-v2"
-              className={`text-sm font-semibold px-4 py-2 rounded-xl transition-all duration-300 ${isActive('/products-v2') ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-foreground/70 dark:text-gray-300 hover:text-primary dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5'}`}
-            >
-              Shop V2
             </Link>
           </div>
 
@@ -189,12 +170,6 @@ export default function Navbar() {
                 className={`block px-4 py-3 rounded-xl text-base font-bold transition-all ${pathname.startsWith('/products') ? 'bg-primary text-white shadow-lg' : 'text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5'}`}
               >
                 Shop
-              </Link>
-              <Link
-                href="/products-v2"
-                className={`block px-4 py-3 rounded-xl text-base font-bold transition-all ${pathname.startsWith('/products-v2') ? 'bg-primary text-white shadow-lg' : 'text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5'}`}
-              >
-                Shop V2
               </Link>
               <Link
                 href="/cart"
