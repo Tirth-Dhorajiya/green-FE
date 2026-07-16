@@ -41,7 +41,7 @@ export default function ThemeToggle() {
     <div className="relative" ref={toggleRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="p-2 text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary hover:bg-primary/10 dark:hover:bg-primary/10 rounded-xl transition-all duration-300 focus:outline-none flex items-center justify-center"
+        className="p-2 text-foreground hover:text-primary hover:bg-primary/10 rounded-xl transition-all duration-300 focus:outline-none flex items-center justify-center"
         aria-label="Toggle theme"
       >
         <AnimatePresence mode="wait">
@@ -67,7 +67,7 @@ export default function ThemeToggle() {
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            className="absolute right-0 mt-2 w-36 glass rounded-2xl shadow-premium py-2 z-50 overflow-hidden border border-white/10 dark:border-white/5"
+            className="absolute right-0 mt-2 w-36 glass rounded-lg shadow-premium py-2 z-50 overflow-hidden border border-black/10 dark:border-white/5"
           >
             {modes.map((mode) => (
               <button

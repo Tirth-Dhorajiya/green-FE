@@ -5,6 +5,7 @@ import { AuthProvider } from '../context/AuthContext';
 import { CartProvider } from '../context/CartContext';
 import { Toaster } from 'react-hot-toast';
 import { ThemeProvider } from 'next-themes';
+import { WishlistProvider } from '../context/WishlistContext';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = React.useState(false);
@@ -18,8 +19,10 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     return (
       <AuthProvider>
         <CartProvider>
-          <Toaster position="top-right" />
-          {children}
+          <WishlistProvider>
+            <Toaster position="top-right" />
+            {children}
+          </WishlistProvider>
         </CartProvider>
       </AuthProvider>
     );
@@ -29,8 +32,10 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <AuthProvider>
         <CartProvider>
-          <Toaster position="top-right" />
-          {children}
+          <WishlistProvider>
+            <Toaster position="top-right" />
+            {children}
+          </WishlistProvider>
         </CartProvider>
       </AuthProvider>
     </ThemeProvider>

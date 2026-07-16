@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import api from '../services/api';
+import { endpoints } from '../services/apiConfig';
 import { useAuth } from './AuthContext';
 import toast from 'react-hot-toast';
 
@@ -48,7 +49,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const fetchCart = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/cart');
+      const res = await api.get(endpoints.cart.list);
       if (res.data.success) {
         setCart(res.data.cart || []);
         setSubtotal(res.data.subtotal || 0);
@@ -67,7 +68,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
     try {
       setLoading(true);
-      const res = await api.post('/cart', { product_id: productId, quantity });
+      const res = await api.post(endpoints.cart.add, { product_id: productId, quantity });
       if (res.data.success) {
         toast.success('Added to cart!');
         await fetchCart();
@@ -82,7 +83,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const updateQuantity = async (cartId: string, quantity: number) => {
     try {
       setLoading(true);
-      const res = await api.put(`/cart/${cartId}`, { quantity });
+      const res = await api.put(endpoints.cart.item(cartId), { quantity });
       if (res.data.success) {
         await fetchCart();
       }
@@ -96,7 +97,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const removeFromCart = async (cartId: string) => {
     try {
       setLoading(true);
-      const res = await api.delete(`/cart/${cartId}`);
+      const res = await api.delete(endpoints.cart.item(cartId));
       if (res.data.success) {
         toast.success('Item removed from cart');
         await fetchCart();

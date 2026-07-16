@@ -11,16 +11,16 @@ export default function AdminOrders({ orders, onUpdateStatus }: AdminOrdersProps
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
       <h1 className="text-4xl font-black text-foreground mb-12 tracking-tight">Order Fulfilment</h1>
-      <div className="bg-card rounded-[2.5rem] shadow-sm border border-black/5 dark:border-white/10 overflow-hidden">
+      <div className="bg-card rounded-xl shadow-sm border border-black/5 dark:border-white/10 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full whitespace-nowrap">
             <thead className="bg-black/5 dark:bg-white/5 border-b border-black/5 dark:border-white/5">
               <tr>
-                <th className="px-8 py-6 text-left text-xs font-black text-gray-400 uppercase tracking-widest">Order Ref</th>
-                <th className="px-8 py-6 text-left text-xs font-black text-gray-400 uppercase tracking-widest">Customer</th>
-                <th className="px-8 py-6 text-left text-xs font-black text-gray-400 uppercase tracking-widest">Timestamp</th>
-                <th className="px-8 py-6 text-left text-xs font-black text-gray-400 uppercase tracking-widest">Revenue</th>
-                <th className="px-8 py-6 text-left text-xs font-black text-gray-400 uppercase tracking-widest">Status</th>
+                <th className="px-8 py-6 text-left text-xs font-black text-gray-600 dark:text-gray-400 uppercase tracking-widest">Order Ref</th>
+                <th className="px-8 py-6 text-left text-xs font-black text-gray-600 dark:text-gray-400 uppercase tracking-widest">Customer</th>
+                <th className="px-8 py-6 text-left text-xs font-black text-gray-600 dark:text-gray-400 uppercase tracking-widest">Timestamp</th>
+                <th className="px-8 py-6 text-left text-xs font-black text-gray-600 dark:text-gray-400 uppercase tracking-widest">Revenue</th>
+                <th className="px-8 py-6 text-left text-xs font-black text-gray-600 dark:text-gray-400 uppercase tracking-widest">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-black/5 dark:divide-white/5">
@@ -30,10 +30,10 @@ export default function AdminOrders({ orders, onUpdateStatus }: AdminOrdersProps
                   <td className="px-8 py-6">
                      <div className="flex flex-col">
                        <span className="font-bold text-foreground">{order.user_name}</span>
-                       <span className="text-xs text-gray-400">{order.user_email}</span>
+                       <span className="text-xs text-gray-600 dark:text-gray-400">{order.user_email}</span>
                      </div>
                   </td>
-                  <td className="px-8 py-6 text-gray-500 font-medium">{new Date(order.created_at).toLocaleDateString()}</td>
+                  <td className="px-8 py-6 text-gray-600 dark:text-gray-400 font-medium">{new Date(order.created_at).toLocaleDateString()}</td>
                   <td className="px-8 py-6 font-black text-foreground">${parseFloat(order.total_price).toFixed(2)}</td>
                   <td className="px-8 py-6">
                     <select 

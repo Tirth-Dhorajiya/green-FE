@@ -5,7 +5,9 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowRight, Leaf, Droplets, Sun, Sprout } from 'lucide-react';
 import api from '../services/api';
+import { endpoints } from '../services/apiConfig';
 import ProductCard from '../components/ProductCard';
+import Image from 'next/image';
 
 export default function Home() {
   const [featuredProducts, setFeaturedProducts] = useState([]);
@@ -14,9 +16,14 @@ export default function Home() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await api.get('/products?limit=4&sortBy=created_at&order=desc');
+        const res = await api.get(endpoints.products.featured);
         if (res.data.success) {
-          setFeaturedProducts(res.data.products);
+          if (res.data.products.length > 0) {
+            setFeaturedProducts(res.data.products);
+          } else {
+            const latest = await api.get(`${endpoints.products.list}?limit=4&sortBy=created_at&order=desc`);
+            setFeaturedProducts(latest.data.products || []);
+          }
         }
       } catch (error) {
         console.error('Failed to fetch products', error);
@@ -33,9 +40,11 @@ export default function Home() {
       <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden py-20">
         {/* Background Image with Overlay */}
         <div className="absolute inset-0 z-0">
-          <img
+          <Image
             src="/hero.png"
             alt="Nature Background"
+            fill
+            priority
             className="w-full h-full object-cover opacity-40 dark:opacity-20 scale-105"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-background via-transparent to-background" />
@@ -48,12 +57,12 @@ export default function Home() {
             transition={{ duration: 0.8 }}
             className="max-w-4xl mx-auto"
           >
-            <div className="inline-flex items-center space-x-2 bg-primary/20 text-primary-light px-6 py-2.5 rounded-full text-sm font-bold mb-8 border border-primary/20 backdrop-blur-md">
+            <div className="inline-flex items-center space-x-2 bg-primary/15 text-primary px-6 py-2.5 rounded-full text-sm font-bold mb-8 border border-primary/20 backdrop-blur-md">
               <Leaf className="w-4 h-4 animate-bounce" />
               <span>Experience The Botanical Revolution</span>
             </div>
 
-            <h1 className="text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter mb-8 leading-none text-foreground uppercase">
+            <h1 className="text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter mb-8 leading-none text-foreground uppercase">
               Nature&apos;s <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-emerald-400">Masterpiece</span>
             </h1>
@@ -63,11 +72,11 @@ export default function Home() {
             </p>
 
             <div className="flex flex-col sm:flex-row justify-center items-center gap-6">
-              <Link href="/products" className="w-full sm:w-auto bg-primary hover:bg-primary-dark text-white px-12 py-6 rounded-3xl font-black text-xl transition-all duration-300 shadow-2xl shadow-primary/30 flex items-center justify-center group scale-100 hover:scale-105">
+              <Link href="/products" className="w-full sm:w-auto bg-primary hover:bg-primary-dark text-white px-8 sm:px-12 py-4 sm:py-6 rounded-xl font-black text-base sm:text-xl transition-all duration-300 shadow-2xl shadow-primary/30 flex items-center justify-center group scale-100 hover:scale-105">
                 Explore Collection <ArrowRight className="ml-3 w-6 h-6 group-hover:translate-x-2 transition-transform" />
               </Link>
-              <Link href="/products?category=plants" className="w-full sm:w-auto glass hover:bg-black/5 dark:hover:bg-white/5 text-foreground px-12 py-6 rounded-3xl font-black text-xl transition-all duration-300 border border-black/10 dark:border-white/10 flex items-center justify-center">
-                Virtual Tour
+              <Link href="/products?category=plants" className="w-full sm:w-auto glass hover:bg-black/5 dark:hover:bg-white/5 text-foreground px-8 sm:px-12 py-4 sm:py-6 rounded-xl font-black text-base sm:text-xl transition-all duration-300 border border-black/10 dark:border-white/10 flex items-center justify-center">
+                Shop Plants
               </Link>
             </div>
 
@@ -113,9 +122,9 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
                 viewport={{ once: true }}
-                className="group bg-card p-10 rounded-[2.5rem] shadow-sm hover:shadow-premium hover:bg-black/5 dark:hover:bg-white/5 transition-all duration-500 border border-black/5 dark:border-white/5"
+                className="group bg-card p-10 rounded-xl shadow-sm hover:shadow-premium hover:bg-black/5 dark:hover:bg-white/5 transition-all duration-500 border border-black/5 dark:border-white/5"
               >
-                <div className={`w-16 h-16 ${feature.color} rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-500`}>
+                <div className={`w-16 h-16 ${feature.color} rounded-lg flex items-center justify-center mb-8 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-500`}>
                   <feature.icon className="w-8 h-8" />
                 </div>
                 <h3 className="text-2xl font-black text-foreground mb-4">{feature.title}</h3>
@@ -131,7 +140,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center md:items-end mb-16 gap-6 text-center md:text-left">
             <div>
-              <span className="text-primary-light font-bold tracking-widest uppercase text-sm">Curated Selection</span>
+              <span className="text-primary font-bold tracking-widest uppercase text-sm">Curated Selection</span>
               <h2 className="text-4xl md:text-5xl font-black text-foreground mt-2 tracking-tight">New Arrivals.</h2>
             </div>
             <Link href="/products" className="inline-flex items-center text-foreground hover:text-primary font-bold text-lg group transition-colors">
@@ -142,8 +151,8 @@ export default function Home() {
           {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
               {[1, 2, 3, 4].map((n) => (
-                <div key={n} className="bg-card p-6 rounded-[2rem] shadow-sm animate-pulse">
-                  <div className="bg-black/5 dark:bg-white/5 aspect-[4/5] rounded-2xl mb-6"></div>
+                <div key={n} className="bg-card p-6 rounded-xl shadow-sm animate-pulse">
+                  <div className="bg-black/5 dark:bg-white/5 aspect-[4/5] rounded-lg mb-6"></div>
                   <div className="h-4 bg-black/5 dark:bg-white/5 rounded-full w-3/4 mb-3"></div>
                   <div className="h-4 bg-black/5 dark:bg-white/5 rounded-full w-1/2"></div>
                 </div>

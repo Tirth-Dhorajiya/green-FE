@@ -6,6 +6,7 @@ import { useCart } from '../../context/CartContext';
 import { BASE_URL } from '../../services/api';
 import { Trash2, Plus, Minus, ArrowRight, ShoppingBag } from 'lucide-react';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 
 export default function Cart() {
   const { cart, subtotal, loading, updateQuantity, removeFromCart } = useCart();
@@ -37,7 +38,7 @@ export default function Cart() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <h1 className="text-3xl md:text-4xl font-extrabold text-foreground mb-8">Shopping Cart</h1>
 
-      <div className="flex flex-col lg:flex-row gap-12">
+      <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
         {/* Cart Items */}
         <div className="flex-1 space-y-6">
           {cart.map((item) => (
@@ -47,12 +48,14 @@ export default function Cart() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="bg-card rounded-2xl p-4 sm:p-6 shadow-sm border border-black/5 dark:border-white/10 flex flex-col sm:flex-row items-center gap-6"
+              className="bg-card rounded-lg p-4 sm:p-6 shadow-sm border border-black/5 dark:border-white/10 flex flex-col sm:flex-row items-center gap-6"
             >
               <div className="w-full sm:w-32 h-32 shrink-0 bg-black/5 dark:bg-white/5 rounded-xl overflow-hidden">
-                <img 
+                <Image
                   src={item.image_url ? (item.image_url.startsWith('http') ? item.image_url : `${BASE_URL}${item.image_url}`) : 'https://images.unsplash.com/photo-1463320726281-696a485928c7?q=80&w=600&auto=format&fit=crop'} 
                   alt={item.name} 
+                  width={128}
+                  height={128}
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -65,7 +68,7 @@ export default function Cart() {
                   <p className="text-gray-500 dark:text-gray-400 font-medium">${parseFloat(item.price).toFixed(2)}</p>
                 </div>
 
-                <div className="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-4 sm:gap-6 w-full sm:w-auto">
                   <div className="flex items-center border border-black/5 dark:border-white/10 rounded-lg bg-black/5 dark:bg-white/5">
                     <button 
                       onClick={() => updateQuantity(item.id, item.quantity - 1)}
@@ -84,7 +87,7 @@ export default function Cart() {
                     </button>
                   </div>
                   
-                  <div className="text-right flex flex-col items-end gap-2">
+                  <div className="text-left sm:text-right flex flex-row sm:flex-col items-center sm:items-end justify-between gap-2">
                     <span className="text-lg font-bold text-foreground">
                       ${(parseFloat(item.price) * item.quantity).toFixed(2)}
                     </span>
@@ -104,7 +107,7 @@ export default function Cart() {
 
         {/* Order Summary */}
         <div className="w-full lg:w-96 shrink-0">
-          <div className="bg-card rounded-2xl p-6 sm:p-8 shadow-sm border border-black/5 dark:border-white/10 sticky top-24">
+          <div className="bg-card rounded-lg p-6 sm:p-8 shadow-sm border border-black/5 dark:border-white/10 sticky top-24">
             <h2 className="text-xl font-bold text-foreground mb-6">Order Summary</h2>
             
             <div className="space-y-4 text-gray-500 dark:text-gray-400 mb-6">

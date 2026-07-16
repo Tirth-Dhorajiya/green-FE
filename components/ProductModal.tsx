@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { X, Upload, Loader2, Star, Image as ImageIcon, Trash2, Check } from 'lucide-react';
 import api, { BASE_URL } from '../services/api';
+import { endpoints } from '../services/apiConfig';
 import toast from 'react-hot-toast';
 
 interface ProductModalProps {
@@ -18,11 +19,12 @@ interface ImageEntry {
   url: string;         // preview URL (blob or cloudinary)
   is_default: boolean;
   is_thumbnail: boolean;
+  public_id?: string | null;
   isExisting: boolean; // already saved on backend
 }
 
 export default function ProductModal({ isOpen, onClose, onSuccess, product }: ProductModalProps) {
-  const [formData, setFormData] = useState({ name: '', description: '', price: '', category: 'plants', stock: '' });
+  const [formData, setFormData] = useState({ name: '', description: '', price: '', category: 'plants', stock: '', is_featured: false });
   const [images, setImages] = useState<ImageEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const isEdit = !!product;
@@ -38,6 +40,7 @@ export default function ProductModal({ isOpen, onClose, onSuccess, product }: Pr
         price: product.price || '',
         category: product.category || 'plants',
         stock: product.stock !== undefined ? product.stock.toString() : '0',
+        is_featured: !!product.is_featured,
       });
 
       // Load existing images from product.images array (JSONB)
@@ -51,6 +54,7 @@ export default function ProductModal({ isOpen, onClose, onSuccess, product }: Pr
           url,
           is_default: img.is_default,
           is_thumbnail: img.is_thumbnail,
+          public_id: img.public_id || null,
           isExisting: true,
         });
       });
@@ -58,12 +62,12 @@ export default function ProductModal({ isOpen, onClose, onSuccess, product }: Pr
       // Fallback: if no images array but image_url exists
       if (existingImages.length === 0 && product.image_url) {
         const url = product.image_url.startsWith('http') ? product.image_url : `${BASE_URL}${product.image_url}`;
-        existingImages.push({ id: 'existing-0', url, is_default: true, is_thumbnail: true, isExisting: true });
+        existingImages.push({ id: 'existing-0', url, is_default: true, is_thumbnail: true, public_id: null, isExisting: true });
       }
 
       setImages(existingImages);
     } else {
-      setFormData({ name: '', description: '', price: '', category: 'plants', stock: '' });
+      setFormData({ name: '', description: '', price: '', category: 'plants', stock: '', is_featured: false });
       setImages([]);
     }
   }, [product, isOpen]);
@@ -138,6 +142,7 @@ export default function ProductModal({ isOpen, onClose, onSuccess, product }: Pr
     data.append('price', formData.price);
     data.append('category', formData.category);
     data.append('stock', formData.stock || '0');
+    data.append('is_featured', String(formData.is_featured));
 
     // Separate new files from existing
     const newFiles = images.filter(img => !img.isExisting && img.file);
@@ -153,7 +158,7 @@ export default function ProductModal({ isOpen, onClose, onSuccess, product }: Pr
       // Pass existing images metadata so backend can merge
       const existingImagesMeta = images
         .filter(img => img.isExisting)
-        .map(img => ({ url: img.url, is_default: img.is_default, is_thumbnail: img.is_thumbnail }));
+        .map(img => ({ url: img.url, public_id: img.public_id || null, is_default: img.is_default, is_thumbnail: img.is_thumbnail }));
       data.append('imagesMetadata', JSON.stringify(existingImagesMeta));
       data.append('keepExistingImages', 'true');
 
@@ -167,7 +172,7 @@ export default function ProductModal({ isOpen, onClose, onSuccess, product }: Pr
 
     try {
       setLoading(true);
-      const endpoint = isEdit ? `/products/${product.id}` : '/products';
+      const endpoint = isEdit ? endpoints.products.detail(product.id) : endpoints.products.list;
       const method = isEdit ? 'put' : 'post';
       const res = await api[method](endpoint, data, { headers: { 'Content-Type': 'multipart/form-data' } });
 
@@ -187,25 +192,25 @@ export default function ProductModal({ isOpen, onClose, onSuccess, product }: Pr
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
-      <div className="bg-card rounded-[3rem] w-full max-w-4xl shadow-2xl border border-black/5 dark:border-white/10 overflow-hidden">
+      <div className="bg-card rounded-xl w-full max-w-4xl shadow-2xl border border-black/5 dark:border-white/10 overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between px-10 py-7 border-b border-black/5 dark:border-white/10">
+        <div className="flex items-center justify-between gap-4 px-5 sm:px-10 py-5 sm:py-7 border-b border-black/5 dark:border-white/10">
           <div>
-            <h2 className="text-3xl font-black text-foreground tracking-tight">{isEdit ? 'Edit Product' : 'Add New Product'}</h2>
-            <p className="text-sm text-gray-500 mt-1">{images.length} image{images.length !== 1 ? 's' : ''} selected</p>
+            <h2 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">{isEdit ? 'Edit Product' : 'Add New Product'}</h2>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{images.length} image{images.length !== 1 ? 's' : ''} selected</p>
           </div>
-          <button onClick={onClose} className="p-3 hover:bg-black/5 dark:hover:bg-white/5 rounded-2xl transition">
+          <button onClick={onClose} className="p-3 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg transition">
             <X className="w-6 h-6 text-gray-400" />
           </button>
         </div>
 
         {/* Body */}
         <form onSubmit={handleSubmit} className="overflow-y-auto max-h-[80vh] custom-scrollbar">
-          <div className="p-10 space-y-10">
+          <div className="p-5 sm:p-10 space-y-8 sm:space-y-10">
 
             {/* ── Image Upload Zone ── */}
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <label className="text-sm font-black uppercase tracking-widest text-primary">Product Images</label>
                 <label htmlFor="multi-image-input" className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary/10 text-primary text-xs font-black uppercase tracking-wider cursor-pointer hover:bg-primary hover:text-white transition-all">
                   <Upload className="w-4 h-4" /> Add Images
@@ -214,17 +219,17 @@ export default function ProductModal({ isOpen, onClose, onSuccess, product }: Pr
               </div>
 
               {images.length === 0 ? (
-                <label htmlFor="multi-image-input" className="flex flex-col items-center justify-center border-2 border-dashed border-black/10 dark:border-white/10 rounded-[2rem] p-16 cursor-pointer hover:border-primary transition-all group">
+                <label htmlFor="multi-image-input" className="flex flex-col items-center justify-center border-2 border-dashed border-black/10 dark:border-white/10 rounded-xl p-8 sm:p-16 cursor-pointer hover:border-primary transition-all group">
                   <div className="p-5 bg-primary/10 rounded-full mb-4 group-hover:bg-primary/20 transition">
                     <Upload className="w-10 h-10 text-primary" />
                   </div>
                   <p className="font-bold text-foreground">Click to upload images</p>
-                  <p className="text-xs text-gray-400 mt-2">JPEG, PNG, WEBP — up to 10 images</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">JPEG, PNG, WEBP - up to 10 images</p>
                 </label>
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4">
                   {images.map(img => (
-                    <div key={img.id} className="relative group aspect-square rounded-2xl overflow-hidden border-2 border-transparent hover:border-primary/30 transition-all">
+                    <div key={img.id} className="relative group aspect-square rounded-lg overflow-hidden border-2 border-transparent hover:border-primary/30 transition-all">
                       <img src={img.url} alt="preview" className="w-full h-full object-cover" />
 
                       {/* Badges */}
@@ -260,14 +265,14 @@ export default function ProductModal({ isOpen, onClose, onSuccess, product }: Pr
                   ))}
 
                   {/* Add more tile */}
-                  <label htmlFor="multi-image-input" className="aspect-square rounded-2xl border-2 border-dashed border-black/10 dark:border-white/10 flex flex-col items-center justify-center cursor-pointer hover:border-primary transition group">
-                    <Upload className="w-6 h-6 text-gray-400 group-hover:text-primary mb-2" />
-                    <span className="text-[10px] font-black text-gray-400 group-hover:text-primary">Add More</span>
+                  <label htmlFor="multi-image-input" className="aspect-square rounded-lg border-2 border-dashed border-black/10 dark:border-white/10 flex flex-col items-center justify-center cursor-pointer hover:border-primary transition group">
+                    <Upload className="w-6 h-6 text-gray-600 dark:text-gray-400 group-hover:text-primary mb-2" />
+                    <span className="text-[10px] font-black text-gray-600 dark:text-gray-400 group-hover:text-primary">Add More</span>
                   </label>
                 </div>
               )}
 
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-gray-600 dark:text-gray-400">
                 <span className="font-black text-primary">Default</span> = main product image &nbsp;|&nbsp;
                 <span className="font-black text-amber-500">Thumbnail</span> = card preview image
               </p>
@@ -277,54 +282,59 @@ export default function ProductModal({ isOpen, onClose, onSuccess, product }: Pr
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-6">
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-gray-400">Product Name *</label>
+                  <label className="text-xs font-black uppercase tracking-widest text-gray-600 dark:text-gray-400">Product Name *</label>
                   <input type="text" required value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })}
                     placeholder="e.g. Royal Monstera"
-                    className="w-full px-6 py-4 rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 focus:ring-2 focus:ring-primary outline-none transition font-medium" />
+                    className="w-full px-6 py-4 rounded-lg border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 focus:ring-2 focus:ring-primary outline-none transition font-medium text-foreground placeholder:text-gray-500" />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-xs font-black uppercase tracking-widest text-gray-400">Category</label>
+                    <label className="text-xs font-black uppercase tracking-widest text-gray-600 dark:text-gray-400">Category</label>
                     <select value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })}
-                      className="w-full px-6 py-4 rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 outline-none font-bold">
+                      className="w-full px-6 py-4 rounded-lg border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 outline-none font-bold text-foreground">
                       <option value="plants">Plants</option>
                       <option value="seeds">Seeds</option>
                       <option value="tools">Tools</option>
+                      <option value="planters">Planters</option>
                       <option value="other">Other</option>
                     </select>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-xs font-black uppercase tracking-widest text-gray-400">Price ($) *</label>
+                    <label className="text-xs font-black uppercase tracking-widest text-gray-600 dark:text-gray-400">Price ($) *</label>
                     <input type="number" step="0.01" required value={formData.price} onChange={e => setFormData({ ...formData, price: e.target.value })}
-                      className="w-full px-6 py-4 rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 outline-none font-bold" />
+                      className="w-full px-6 py-4 rounded-lg border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 outline-none font-bold text-foreground" />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-gray-400">Inventory Stock</label>
+                  <label className="text-xs font-black uppercase tracking-widest text-gray-600 dark:text-gray-400">Inventory Stock</label>
                   <input type="number" value={formData.stock} onChange={e => setFormData({ ...formData, stock: e.target.value })}
-                    className="w-full px-6 py-4 rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 outline-none font-bold" />
+                    className="w-full px-6 py-4 rounded-lg border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 outline-none font-bold text-foreground" />
                 </div>
+                <label className="flex items-center gap-3 rounded-lg border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-6 py-4 font-bold text-foreground">
+                  <input type="checkbox" checked={formData.is_featured} onChange={e => setFormData({ ...formData, is_featured: e.target.checked })} />
+                  Featured product
+                </label>
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-black uppercase tracking-widest text-gray-400">Full Description</label>
+                <label className="text-xs font-black uppercase tracking-widest text-gray-600 dark:text-gray-400">Full Description</label>
                 <textarea rows={9} value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Detailed botanical information..."
-                  className="w-full h-full px-6 py-4 rounded-3xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 focus:ring-2 focus:ring-primary outline-none transition resize-none font-medium" />
+                  className="w-full h-full px-6 py-4 rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 focus:ring-2 focus:ring-primary outline-none transition resize-none font-medium text-foreground placeholder:text-gray-500" />
               </div>
             </div>
           </div>
 
           {/* Footer */}
-          <div className="flex gap-4 px-10 py-7 border-t border-black/5 dark:border-white/10 bg-black/2 dark:bg-white/2">
+          <div className="flex flex-col sm:flex-row gap-4 px-6 sm:px-10 py-6 sm:py-7 border-t border-black/5 dark:border-white/10 bg-black/2 dark:bg-white/2">
             <button type="button" onClick={onClose}
-              className="flex-1 py-4 rounded-2xl font-black text-gray-500 bg-black/5 hover:bg-black/10 transition">
+              className="flex-1 py-4 rounded-lg font-black text-gray-700 dark:text-gray-300 bg-black/5 dark:bg-white/5 hover:bg-black/10 transition">
               Cancel
             </button>
             <button type="submit" disabled={loading}
-              className="flex-1 py-4 rounded-2xl font-black text-white bg-primary hover:bg-primary-dark shadow-xl shadow-primary/20 transition flex items-center justify-center gap-2 disabled:opacity-50">
+              className="flex-1 py-4 rounded-lg font-black text-white bg-primary hover:bg-primary-dark shadow-xl shadow-primary/20 transition flex items-center justify-center gap-2 disabled:opacity-50">
               {loading ? <><Loader2 className="w-5 h-5 animate-spin" /> Processing...</> : (isEdit ? 'Update Product' : 'Add Product')}
             </button>
           </div>

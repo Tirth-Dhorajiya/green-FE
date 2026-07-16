@@ -40,10 +40,10 @@ export default function ConfirmationModal({
 
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="bg-card rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in duration-300 border border-black/5 dark:border-white/10">
+      <div className="bg-card rounded-xl w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in duration-300 border border-black/5 dark:border-white/10">
         <div className="p-8">
           <div className="flex justify-between items-start mb-6">
-            <div className={`p-4 rounded-2xl ${iconStyles[variant]}`}>
+            <div className={`p-4 rounded-lg ${iconStyles[variant]}`}>
               <AlertTriangle className="w-8 h-8" />
             </div>
             <button onClick={onClose} className="p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-full transition">
@@ -59,7 +59,7 @@ export default function ConfirmationModal({
           <div className="flex gap-4">
             <button
               onClick={onClose}
-              className="flex-1 py-4 rounded-2xl font-bold text-gray-500 dark:text-gray-400 bg-black/5 dark:bg-white/5 hover:bg-black/10 transition duration-300"
+              className="flex-1 py-4 rounded-lg font-bold text-gray-500 dark:text-gray-400 bg-black/5 dark:bg-white/5 hover:bg-black/10 transition duration-300"
             >
               {cancelText}
             </button>
@@ -68,7 +68,7 @@ export default function ConfirmationModal({
                 onConfirm();
                 onClose();
               }}
-              className={`flex-1 py-4 rounded-2xl font-bold text-white transition duration-300 shadow-lg ${variantStyles[variant]}`}
+              className={`flex-1 py-4 rounded-lg font-bold text-white transition duration-300 shadow-lg ${variantStyles[variant]}`}
             >
               {confirmText}
             </button>

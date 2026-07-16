@@ -1,10 +1,8 @@
 import axios from 'axios';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:5000';
+import { API_BASE_URL, ASSET_BASE_URL } from './apiConfig';
 
 const api = axios.create({
-  baseURL: API_URL,
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -24,5 +22,5 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-export { BASE_URL };
+export { ASSET_BASE_URL as BASE_URL };
 export default api;

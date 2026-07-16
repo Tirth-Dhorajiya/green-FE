@@ -4,14 +4,24 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useRouter } from 'next/navigation';
 import api, { BASE_URL } from '../../services/api';
-import { Package, User, Clock, ChevronRight } from 'lucide-react';
+import { endpoints } from '../../services/apiConfig';
+import { Package, User, Clock, ChevronRight, Save } from 'lucide-react';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
+import toast from 'react-hot-toast';
 
 export default function Profile() {
-  const { user, loading, logout } = useAuth();
+  const { user, loading, logout, checkAuth } = useAuth();
   const router = useRouter();
   const [orders, setOrders] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [profileForm, setProfileForm] = useState({
+    name: '',
+    address: '',
+    city: '',
+    postalCode: '',
+  });
 
   useEffect(() => {
     if (!loading && !user) {
@@ -20,9 +30,20 @@ export default function Profile() {
   }, [user, loading, router]);
 
   useEffect(() => {
+    if (user) {
+      setProfileForm({
+        name: user.name || '',
+        address: user.address?.address || '',
+        city: user.address?.city || '',
+        postalCode: user.address?.postalCode || '',
+      });
+    }
+  }, [user]);
+
+  useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const res = await api.get('/orders/my');
+        const res = await api.get(endpoints.orders.mine);
         if (res.data.success) {
           setOrders(res.data.orders);
         }
@@ -57,13 +78,35 @@ export default function Profile() {
     }
   };
 
+  const saveProfile = async (event: React.FormEvent) => {
+    event.preventDefault();
+    try {
+      setProfileSaving(true);
+      await api.put(endpoints.auth.updateMe, {
+        name: profileForm.name,
+        address: {
+          name: profileForm.name,
+          address: profileForm.address,
+          city: profileForm.city,
+          postalCode: profileForm.postalCode,
+        },
+      });
+      await checkAuth();
+      toast.success('Profile updated');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Unable to update profile');
+    } finally {
+      setProfileSaving(false);
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="flex flex-col md:flex-row gap-8">
         
         {/* Profile Sidebar */}
         <div className="w-full md:w-80 shrink-0">
-          <div className="bg-card rounded-2xl p-8 shadow-sm border border-black/5 dark:border-white/10 text-center sticky top-24">
+          <div className="bg-card rounded-lg p-8 shadow-sm border border-black/5 dark:border-white/10 text-center sticky top-24">
             <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
               <User className="w-12 h-12 text-primary" />
             </div>
@@ -85,9 +128,35 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* Order History */}
         <div className="flex-1">
-          <div className="bg-card rounded-2xl p-6 md:p-8 shadow-sm border border-black/5 dark:border-white/10">
+          <form onSubmit={saveProfile} className="bg-card rounded-lg p-6 md:p-8 shadow-sm border border-black/5 dark:border-white/10 mb-8">
+            <h2 className="text-2xl font-bold text-foreground mb-6 flex items-center">
+              <User className="w-6 h-6 mr-3 text-primary" /> Profile & Address
+            </h2>
+            <div className="grid md:grid-cols-2 gap-4">
+              <label className="block text-sm font-bold text-foreground/70">
+                Full Name
+                <input value={profileForm.name} onChange={(event) => setProfileForm({ ...profileForm, name: event.target.value })} className="mt-2 w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 outline-none" />
+              </label>
+              <label className="block text-sm font-bold text-foreground/70">
+                City
+                <input value={profileForm.city} onChange={(event) => setProfileForm({ ...profileForm, city: event.target.value })} className="mt-2 w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 outline-none" />
+              </label>
+              <label className="block text-sm font-bold text-foreground/70 md:col-span-2">
+                Address
+                <input value={profileForm.address} onChange={(event) => setProfileForm({ ...profileForm, address: event.target.value })} className="mt-2 w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 outline-none" />
+              </label>
+              <label className="block text-sm font-bold text-foreground/70">
+                Postal Code
+                <input value={profileForm.postalCode} onChange={(event) => setProfileForm({ ...profileForm, postalCode: event.target.value })} className="mt-2 w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 outline-none" />
+              </label>
+            </div>
+            <button type="submit" disabled={profileSaving} className="mt-6 inline-flex items-center gap-2 bg-primary text-white px-5 py-3 rounded-xl font-black hover:bg-primary-dark transition disabled:opacity-60">
+              <Save className="w-4 h-4" /> {profileSaving ? 'Saving...' : 'Save Profile'}
+            </button>
+          </form>
+
+          <div className="bg-card rounded-lg p-6 md:p-8 shadow-sm border border-black/5 dark:border-white/10">
             <h2 className="text-2xl font-bold text-foreground mb-8 flex items-center">
               <Clock className="w-6 h-6 mr-3 text-primary" /> Order History
             </h2>
@@ -103,7 +172,7 @@ export default function Profile() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     key={order.id} 
-                    className="border border-black/5 dark:border-white/10 rounded-2xl p-6 hover:shadow-md transition"
+                    className="border border-black/5 dark:border-white/10 rounded-lg p-6 hover:shadow-md transition"
                   >
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4 pb-6 border-b border-black/5 dark:border-white/10">
                       <div>
@@ -120,15 +189,21 @@ export default function Profile() {
 
                     <div className="space-y-4">
                       {order.items?.map((item: any) => (
-                        <div key={item.id} className="flex items-center gap-4">
+                        <div key={item.id} className="flex flex-col sm:flex-row sm:items-center gap-4">
                           <div className="w-16 h-16 bg-black/5 dark:bg-white/5 rounded-lg overflow-hidden shrink-0 border border-black/5 dark:border-white/10">
-                            <img src={item.image_url ? (item.image_url.startsWith('http') ? item.image_url : `${BASE_URL}${item.image_url}`) : 'https://images.unsplash.com/photo-1463320726281-696a485928c7?q=80&w=200&auto=format&fit=crop'} alt={item.product_name} className="w-full h-full object-cover" />
+                            <Image
+                              src={item.image_url ? (item.image_url.startsWith('http') ? item.image_url : `${BASE_URL}${item.image_url}`) : 'https://images.unsplash.com/photo-1463320726281-696a485928c7?q=80&w=200&auto=format&fit=crop'}
+                              alt={item.product_name}
+                              width={64}
+                              height={64}
+                              className="w-full h-full object-cover"
+                            />
                           </div>
-                          <div className="flex-1">
+                          <div className="flex-1 w-full">
                             <h4 className="font-semibold text-foreground">{item.product_name}</h4>
                             <p className="text-sm text-gray-500 dark:text-gray-400">Qty: {item.quantity} × ${parseFloat(item.price).toFixed(2)}</p>
                           </div>
-                          <div className="font-bold text-foreground">
+                          <div className="font-bold text-foreground sm:text-right">
                             ${(item.quantity * parseFloat(item.price)).toFixed(2)}
                           </div>
                         </div>

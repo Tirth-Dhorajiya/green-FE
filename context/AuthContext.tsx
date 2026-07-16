@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import api from '../services/api';
+import { endpoints } from '../services/apiConfig';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 
@@ -10,6 +11,13 @@ interface User {
   name: string;
   email: string;
   role: 'user' | 'admin';
+  email_verified?: boolean;
+  address?: {
+    name?: string;
+    address?: string;
+    city?: string;
+    postalCode?: string;
+  };
 }
 
 interface AuthContextType {
@@ -44,7 +52,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setLoading(true);
       // Let interceptor handle the token if already set in localStorage, 
       // but if we are passing it directly, we might need it.
-      const res = await api.get('/auth/me');
+      const res = await api.get(endpoints.auth.me);
       if (res.data.success) {
         setUser(res.data.user);
       } else {

@@ -20,8 +20,8 @@
 :root {
   --background: #fbfaf8;
   --foreground: #2a241f;
-  --glass-bg: rgba(251, 250, 248, 0.75);
-  --glass-border: rgba(42, 36, 31, 0.06);
+  --glass-bg: rgba(255, 255, 255, 0.96);
+  --glass-border: rgba(42, 36, 31, 0.12);
   --card-bg: #ffffff;
   --card-border: rgba(42, 36, 31, 0.06);
   --sidebar-bg: #f5f3ef;
@@ -50,6 +50,23 @@ body {
   -moz-osx-font-smoothing: grayscale;
   transition: background-color 0.3s ease, color 0.3s ease;
   min-height: 100vh;
+}
+
+input,
+select,
+textarea {
+  color: var(--foreground);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #6b7280;
+  opacity: 1;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #9ca3af;
 }
 
 .glass {
