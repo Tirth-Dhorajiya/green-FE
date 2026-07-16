@@ -8,6 +8,7 @@ import api from '../services/api';
 import { endpoints } from '../services/apiConfig';
 import ProductCard from '../components/ProductCard';
 import Image from 'next/image';
+import { ProductGridSkeleton } from '../components/Skeletons';
 
 export default function Home() {
   const [featuredProducts, setFeaturedProducts] = useState([]);
@@ -149,15 +150,7 @@ export default function Home() {
           </div>
 
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
-              {[1, 2, 3, 4].map((n) => (
-                <div key={n} className="bg-card p-6 rounded-xl shadow-sm animate-pulse">
-                  <div className="bg-black/5 dark:bg-white/5 aspect-[4/5] rounded-lg mb-6"></div>
-                  <div className="h-4 bg-black/5 dark:bg-white/5 rounded-full w-3/4 mb-3"></div>
-                  <div className="h-4 bg-black/5 dark:bg-white/5 rounded-full w-1/2"></div>
-                </div>
-              ))}
-            </div>
+            <ProductGridSkeleton count={4} />
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
               {featuredProducts.map((product: any) => (

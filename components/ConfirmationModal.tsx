@@ -1,12 +1,12 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { AlertTriangle, X } from 'lucide-react';
 
 interface ConfirmationModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: () => void | Promise<void>;
   title: string;
   message: string;
   confirmText?: string;
@@ -24,6 +24,8 @@ export default function ConfirmationModal({
   cancelText = 'Cancel',
   variant = 'danger'
 }: ConfirmationModalProps) {
+  const [confirming, setConfirming] = useState(false);
+
   if (!isOpen) return null;
 
   const variantStyles = {
@@ -39,14 +41,14 @@ export default function ConfirmationModal({
   };
 
   return (
-    <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+    <div className="fixed inset-0 z-[130] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
       <div className="bg-card rounded-xl w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in duration-300 border border-black/5 dark:border-white/10">
         <div className="p-8">
           <div className="flex justify-between items-start mb-6">
             <div className={`p-4 rounded-lg ${iconStyles[variant]}`}>
               <AlertTriangle className="w-8 h-8" />
             </div>
-            <button onClick={onClose} className="p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-full transition">
+            <button onClick={onClose} disabled={confirming} className="p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-full transition disabled:opacity-50">
               <X className="w-6 h-6 text-gray-400" />
             </button>
           </div>
@@ -59,18 +61,25 @@ export default function ConfirmationModal({
           <div className="flex gap-4">
             <button
               onClick={onClose}
-              className="flex-1 py-4 rounded-lg font-bold text-gray-500 dark:text-gray-400 bg-black/5 dark:bg-white/5 hover:bg-black/10 transition duration-300"
+              disabled={confirming}
+              className="flex-1 py-4 rounded-lg font-bold text-gray-500 dark:text-gray-400 bg-black/5 dark:bg-white/5 hover:bg-black/10 transition duration-300 disabled:opacity-50"
             >
               {cancelText}
             </button>
             <button
-              onClick={() => {
-                onConfirm();
-                onClose();
+              onClick={async () => {
+                try {
+                  setConfirming(true);
+                  await onConfirm();
+                  onClose();
+                } finally {
+                  setConfirming(false);
+                }
               }}
-              className={`flex-1 py-4 rounded-lg font-bold text-white transition duration-300 shadow-lg ${variantStyles[variant]}`}
+              disabled={confirming}
+              className={`flex-1 py-4 rounded-lg font-bold text-white transition duration-300 shadow-lg disabled:opacity-60 ${variantStyles[variant]}`}
             >
-              {confirmText}
+              {confirming ? 'Please wait...' : confirmText}
             </button>
           </div>
         </div>

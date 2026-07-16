@@ -6,6 +6,7 @@ import { ShoppingCart, Heart } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { motion } from 'framer-motion';
+import ConfirmationModal from './ConfirmationModal';
 
 interface Product {
   id: string;
@@ -20,9 +21,18 @@ interface Product {
 export default function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useCart();
   const { isWishlisted, toggleWishlist } = useWishlist();
+  const [confirmRemove, setConfirmRemove] = React.useState(false);
   const imageUrl = product.image_url 
     ? (product.image_url.startsWith('http') ? product.image_url : `${BASE_URL}${product.image_url}`)
     : 'https://images.unsplash.com/photo-1463320726281-696a485928c7?q=80&w=600&auto=format&fit=crop';
+
+  const handleWishlistToggle = () => {
+    if (isWishlisted(product.id)) {
+      setConfirmRemove(true);
+      return;
+    }
+    toggleWishlist(product);
+  };
 
   return (
     <motion.div
@@ -45,7 +55,7 @@ export default function ProductCard({ product }: { product: Product }) {
         <div className="absolute top-4 right-4 flex flex-col gap-2 translate-x-12 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-500">
           <button
             type="button"
-            onClick={() => toggleWishlist(product)}
+            onClick={handleWishlistToggle}
             className="p-3 bg-white/90 dark:bg-black/70 backdrop-blur-md text-foreground rounded-lg hover:bg-primary hover:text-white transition-colors shadow-premium border border-black/10 dark:border-white/5"
             aria-label={isWishlisted(product.id) ? 'Remove from wishlist' : 'Add to wishlist'}
           >
@@ -72,7 +82,7 @@ export default function ProductCard({ product }: { product: Product }) {
             </Link>
           </div>
           <span className="text-xl font-black text-foreground shrink-0">
-            ${parseFloat(product.price).toFixed(2)}
+            ₹{parseFloat(product.price).toFixed(2)}
           </span>
         </div>
 
@@ -89,6 +99,15 @@ export default function ProductCard({ product }: { product: Product }) {
           <span>Add to Cart</span>
         </button>
       </div>
+      <ConfirmationModal
+        isOpen={confirmRemove}
+        onClose={() => setConfirmRemove(false)}
+        onConfirm={() => toggleWishlist(product)}
+        title="Remove wishlist item?"
+        message={`Remove "${product.name}" from your wishlist?`}
+        confirmText="Remove"
+        variant="danger"
+      />
     </motion.div>
 
 

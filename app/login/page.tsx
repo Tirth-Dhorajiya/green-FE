@@ -29,7 +29,8 @@ export default function Login() {
       const res = await api.post(endpoints.auth.login, { email, password });
       if (res.data.success) {
         login(res.data.token, res.data.user);
-        router.push('/');
+        const redirectTo = new URLSearchParams(window.location.search).get('redirect') || '/';
+        router.push(redirectTo);
       }
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Login failed');

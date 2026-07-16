@@ -5,22 +5,192 @@ import { useAuth } from '../../context/AuthContext';
 import { useRouter } from 'next/navigation';
 import api, { BASE_URL } from '../../services/api';
 import { endpoints } from '../../services/apiConfig';
-import { Package, User, Clock, ChevronRight, Save } from 'lucide-react';
+import { Package, User, Clock, ChevronRight, Save, X, Truck, CreditCard, MapPin, Download, Ban } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
+import { ProfileSkeleton, SkeletonBlock } from '../../components/Skeletons';
+import ConfirmationModal from '../../components/ConfirmationModal';
+
+const orderSteps = ['pending', 'processing', 'shipped', 'delivered'];
+const money = (value: string | number | undefined) => `₹${Number(value || 0).toFixed(2)}`;
+const dateTime = (value: string | undefined) => value ? new Date(value).toLocaleString() : '-';
+
+function downloadReceipt(order: any) {
+  const address = order.shipping_address || {};
+  const lines = [
+    'Green Store Receipt',
+    `Order: #${order.id.slice(0, 8)}`,
+    `Date: ${dateTime(order.created_at)}`,
+    `Status: ${order.status}`,
+    `Payment: ${order.payment_status}`,
+    '',
+    'Items:',
+    ...(order.items || []).map((item: any) => `${item.quantity} x ${item.product_name} @ ${money(item.price)} = ${money(item.quantity * Number(item.price))}`),
+    '',
+    `Subtotal: ${money(order.subtotal_price || order.total_price)}`,
+    `Coupon: ${order.coupon_code || '-'}`,
+    `Discount: -${money(order.discount_amount || 0)}`,
+    `Total: ${money(order.total_price)}`,
+    '',
+    'Shipping:',
+    [address.name, address.phone, address.address, address.landmark, address.city, address.state, address.postalCode, address.country].filter(Boolean).join(', '),
+    '',
+    `Razorpay payment: ${order.razorpay_payment_id || '-'}`,
+  ];
+  const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `green-store-order-${order.id.slice(0, 8)}.txt`;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+function OrderDetailsModal({ order, onClose, onCancel }: { order: any; onClose: () => void; onCancel: (order: any) => void }) {
+  const address = order.shipping_address || {};
+  const activeStep = order.status === 'cancelled' ? -1 : orderSteps.indexOf(order.status);
+  const canCancel = ['pending', 'processing'].includes(order.status);
+
+  return (
+    <div className="fixed inset-0 z-[120] bg-black/60 p-0 sm:p-4 flex items-end sm:items-center justify-center" role="dialog" aria-modal="true">
+      <div className="bg-background w-full max-w-5xl max-h-[92vh] overflow-y-auto rounded-t-3xl sm:rounded-3xl border border-black/10 dark:border-white/10 shadow-2xl">
+        <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-black/5 dark:border-white/10 bg-background/95 backdrop-blur p-5">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.25em] text-primary">Order details</p>
+            <h2 className="text-2xl font-black text-foreground">#{order.id.slice(0, 8)}</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{dateTime(order.created_at)}</p>
+          </div>
+          <button onClick={onClose} className="cursor-pointer rounded-full bg-black/5 dark:bg-white/10 p-3 text-foreground hover:bg-primary hover:text-white transition" aria-label="Close order details">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="p-5 space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+            <div className="rounded-2xl bg-card border border-black/5 dark:border-white/10 p-4">
+              <p className="text-xs font-black uppercase text-gray-500">Total</p>
+              <strong className="text-2xl text-primary">{money(order.total_price)}</strong>
+            </div>
+            <div className="rounded-2xl bg-card border border-black/5 dark:border-white/10 p-4">
+              <p className="text-xs font-black uppercase text-gray-500">Order</p>
+              <strong className="capitalize text-foreground">{order.status}</strong>
+            </div>
+            <div className="rounded-2xl bg-card border border-black/5 dark:border-white/10 p-4">
+              <p className="text-xs font-black uppercase text-gray-500">Payment</p>
+              <strong className="capitalize text-foreground">{order.payment_status}</strong>
+            </div>
+            <div className="rounded-2xl bg-card border border-black/5 dark:border-white/10 p-4">
+              <p className="text-xs font-black uppercase text-gray-500">Coupon</p>
+              <strong className="text-foreground">{order.coupon_code || 'None'}</strong>
+            </div>
+          </div>
+
+          <section className="rounded-2xl bg-card border border-black/5 dark:border-white/10 p-5">
+            <h3 className="font-black text-foreground mb-5 flex items-center gap-2"><Truck className="w-5 h-5 text-primary" /> Tracking</h3>
+            {order.status === 'cancelled' ? (
+              <div className="rounded-xl bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 p-4 font-bold">This order is cancelled.</div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                {orderSteps.map((step, index) => (
+                  <div key={step} className={`rounded-xl border p-4 ${index <= activeStep ? 'border-primary bg-primary/10 text-primary' : 'border-black/5 dark:border-white/10 text-gray-500'}`}>
+                    <p className="font-black capitalize">{step}</p>
+                    <p className="text-xs mt-1">
+                      {order.status_history?.find((item: any) => item.to_status === step)?.created_at
+                        ? dateTime(order.status_history.find((item: any) => item.to_status === step).created_at)
+                        : index <= activeStep ? 'Completed' : 'Waiting'}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+            {(order.courier_name || order.tracking_number || order.estimated_delivery_date) && (
+              <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+                <p><strong>Courier:</strong> {order.courier_name || '-'}</p>
+                <p><strong>Tracking:</strong> {order.tracking_number || '-'}</p>
+                <p><strong>ETA:</strong> {order.estimated_delivery_date ? new Date(order.estimated_delivery_date).toLocaleDateString() : '-'}</p>
+              </div>
+            )}
+          </section>
+
+          <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-5">
+            <section className="rounded-2xl bg-card border border-black/5 dark:border-white/10 p-5">
+              <h3 className="font-black text-foreground mb-4">Items</h3>
+              <div className="space-y-4">
+                {order.items?.map((item: any) => (
+                  <div key={item.id} className="flex gap-4">
+                    <Image
+                      src={item.image_url ? (item.image_url.startsWith('http') ? item.image_url : `${BASE_URL}${item.image_url}`) : 'https://images.unsplash.com/photo-1463320726281-696a485928c7?q=80&w=200&auto=format&fit=crop'}
+                      alt={item.product_name}
+                      width={64}
+                      height={64}
+                      className="w-16 h-16 rounded-xl object-cover"
+                    />
+                    <div className="flex-1">
+                      <h4 className="font-bold text-foreground">{item.product_name}</h4>
+                      <p className="text-sm text-gray-500">Qty: {item.quantity} x {money(item.price)}</p>
+                    </div>
+                    <strong>{money(item.quantity * Number(item.price))}</strong>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <section className="space-y-5">
+              <div className="rounded-2xl bg-card border border-black/5 dark:border-white/10 p-5">
+                <h3 className="font-black text-foreground mb-3 flex items-center gap-2"><MapPin className="w-5 h-5 text-primary" /> Delivery address</h3>
+                <p className="font-bold">{address.name || '-'}</p>
+                <p className="text-sm text-gray-500">{address.phone || '-'}</p>
+                <p className="text-sm text-gray-500">{[address.address, address.landmark, address.city, address.state, address.postalCode, address.country].filter(Boolean).join(', ') || '-'}</p>
+              </div>
+              <div className="rounded-2xl bg-card border border-black/5 dark:border-white/10 p-5">
+                <h3 className="font-black text-foreground mb-3 flex items-center gap-2"><CreditCard className="w-5 h-5 text-primary" /> Payment</h3>
+                <p className="text-sm"><strong>Provider:</strong> {order.payment_provider || '-'}</p>
+                <p className="text-sm break-all"><strong>Reference:</strong> {order.payment_reference || '-'}</p>
+                <p className="text-sm break-all"><strong>Razorpay:</strong> {order.razorpay_payment_id || '-'}</p>
+                <div className="mt-4 border-t border-black/5 dark:border-white/10 pt-3 space-y-2 text-sm">
+                  <div className="flex justify-between"><span>Subtotal</span><strong>{money(order.subtotal_price || order.total_price)}</strong></div>
+                  <div className="flex justify-between"><span>Discount</span><strong>-{money(order.discount_amount || 0)}</strong></div>
+                  <div className="flex justify-between text-lg text-primary"><span>Total</span><strong>{money(order.total_price)}</strong></div>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button onClick={() => downloadReceipt(order)} className="cursor-pointer inline-flex items-center justify-center gap-2 rounded-xl bg-primary text-white px-5 py-3 font-black hover:bg-primary-dark transition">
+              <Download className="w-4 h-4" /> Download Receipt
+            </button>
+            {canCancel && (
+              <button onClick={() => onCancel(order)} className="cursor-pointer inline-flex items-center justify-center gap-2 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 px-5 py-3 font-black hover:bg-red-100 dark:hover:bg-red-900/30 transition">
+                <Ban className="w-4 h-4" /> Cancel Order
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function Profile() {
   const { user, loading, logout, checkAuth } = useAuth();
   const router = useRouter();
-  const [orders, setOrders] = useState([]);
+  const [orders, setOrders] = useState<any[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
   const [profileSaving, setProfileSaving] = useState(false);
+  const [logoutOpen, setLogoutOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const [cancelOrder, setCancelOrder] = useState<any>(null);
   const [profileForm, setProfileForm] = useState({
     name: '',
+    phone: '',
     address: '',
     city: '',
+    state: '',
+    country: 'India',
     postalCode: '',
+    landmark: '',
   });
 
   useEffect(() => {
@@ -33,9 +203,13 @@ export default function Profile() {
     if (user) {
       setProfileForm({
         name: user.name || '',
+        phone: user.address?.phone || '',
         address: user.address?.address || '',
         city: user.address?.city || '',
+        state: user.address?.state || '',
+        country: user.address?.country || 'India',
         postalCode: user.address?.postalCode || '',
+        landmark: user.address?.landmark || '',
       });
     }
   }, [user]);
@@ -60,11 +234,7 @@ export default function Profile() {
   }, [user]);
 
   if (loading || !user) {
-    return (
-      <div className="flex justify-center items-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
-    );
+    return <ProfileSkeleton />;
   }
 
   const getStatusColor = (status: string) => {
@@ -86,9 +256,13 @@ export default function Profile() {
         name: profileForm.name,
         address: {
           name: profileForm.name,
+          phone: profileForm.phone,
           address: profileForm.address,
           city: profileForm.city,
+          state: profileForm.state,
+          country: profileForm.country,
           postalCode: profileForm.postalCode,
+          landmark: profileForm.landmark,
         },
       });
       await checkAuth();
@@ -97,6 +271,20 @@ export default function Profile() {
       toast.error(error.response?.data?.message || 'Unable to update profile');
     } finally {
       setProfileSaving(false);
+    }
+  };
+
+  const handleCancelOrder = async () => {
+    if (!cancelOrder) return;
+    try {
+      const res = await api.put(endpoints.orders.cancel(cancelOrder.id), { note: 'Cancelled by customer' });
+      setOrders((current: any[]) => current.map((order) => order.id === cancelOrder.id ? res.data.order : order));
+      setSelectedOrder(res.data.order);
+      toast.success(res.data.message || 'Order cancelled');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Unable to cancel order');
+    } finally {
+      setCancelOrder(null);
     }
   };
 
@@ -114,13 +302,13 @@ export default function Profile() {
             <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">{user.email}</p>
             
             <div className="space-y-3">
-              <button className="w-full flex items-center justify-between px-4 py-3 bg-primary/10 text-primary rounded-xl font-medium">
+              <button className="w-full cursor-pointer flex items-center justify-between px-4 py-3 bg-primary/10 text-primary rounded-xl font-medium">
                 <span className="flex items-center"><Package className="w-5 h-5 mr-3" /> Orders</span>
                 <ChevronRight className="w-5 h-5" />
               </button>
               <button 
-                onClick={logout}
-                className="w-full flex items-center justify-between px-4 py-3 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 rounded-xl font-medium transition"
+                onClick={() => setLogoutOpen(true)}
+                className="w-full cursor-pointer flex items-center justify-between px-4 py-3 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 rounded-xl font-medium transition"
               >
                 <span>Logout</span>
               </button>
@@ -139,8 +327,16 @@ export default function Profile() {
                 <input value={profileForm.name} onChange={(event) => setProfileForm({ ...profileForm, name: event.target.value })} className="mt-2 w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 outline-none" />
               </label>
               <label className="block text-sm font-bold text-foreground/70">
+                Phone
+                <input value={profileForm.phone} onChange={(event) => setProfileForm({ ...profileForm, phone: event.target.value })} className="mt-2 w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 outline-none" />
+              </label>
+              <label className="block text-sm font-bold text-foreground/70">
                 City
                 <input value={profileForm.city} onChange={(event) => setProfileForm({ ...profileForm, city: event.target.value })} className="mt-2 w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 outline-none" />
+              </label>
+              <label className="block text-sm font-bold text-foreground/70">
+                State
+                <input value={profileForm.state} onChange={(event) => setProfileForm({ ...profileForm, state: event.target.value })} className="mt-2 w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 outline-none" />
               </label>
               <label className="block text-sm font-bold text-foreground/70 md:col-span-2">
                 Address
@@ -150,8 +346,16 @@ export default function Profile() {
                 Postal Code
                 <input value={profileForm.postalCode} onChange={(event) => setProfileForm({ ...profileForm, postalCode: event.target.value })} className="mt-2 w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 outline-none" />
               </label>
+              <label className="block text-sm font-bold text-foreground/70">
+                Country
+                <input value={profileForm.country} onChange={(event) => setProfileForm({ ...profileForm, country: event.target.value })} className="mt-2 w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 outline-none" />
+              </label>
+              <label className="block text-sm font-bold text-foreground/70 md:col-span-2">
+                Landmark
+                <input value={profileForm.landmark} onChange={(event) => setProfileForm({ ...profileForm, landmark: event.target.value })} className="mt-2 w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 outline-none" />
+              </label>
             </div>
-            <button type="submit" disabled={profileSaving} className="mt-6 inline-flex items-center gap-2 bg-primary text-white px-5 py-3 rounded-xl font-black hover:bg-primary-dark transition disabled:opacity-60">
+            <button type="submit" disabled={profileSaving} className="mt-6 inline-flex cursor-pointer items-center gap-2 bg-primary text-white px-5 py-3 rounded-xl font-black hover:bg-primary-dark transition disabled:cursor-not-allowed disabled:opacity-60">
               <Save className="w-4 h-4" /> {profileSaving ? 'Saving...' : 'Save Profile'}
             </button>
           </form>
@@ -162,8 +366,8 @@ export default function Profile() {
             </h2>
 
             {loadingOrders ? (
-               <div className="flex justify-center py-12">
-                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+               <div className="space-y-5">
+                 {[1, 2, 3].map((item) => <SkeletonBlock key={item} className="h-40 w-full" />)}
                </div>
             ) : orders.length > 0 ? (
               <div className="space-y-6">
@@ -183,7 +387,7 @@ export default function Profile() {
                         <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${getStatusColor(order.status)}`}>
                           {order.status}
                         </span>
-                        <p className="font-extrabold text-lg text-foreground">${parseFloat(order.total_price).toFixed(2)}</p>
+                        <p className="font-extrabold text-lg text-foreground">₹{parseFloat(order.total_price).toFixed(2)}</p>
                       </div>
                     </div>
 
@@ -201,13 +405,34 @@ export default function Profile() {
                           </div>
                           <div className="flex-1 w-full">
                             <h4 className="font-semibold text-foreground">{item.product_name}</h4>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">Qty: {item.quantity} × ${parseFloat(item.price).toFixed(2)}</p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">Qty: {item.quantity} × ₹{parseFloat(item.price).toFixed(2)}</p>
                           </div>
                           <div className="font-bold text-foreground sm:text-right">
-                            ${(item.quantity * parseFloat(item.price)).toFixed(2)}
+                            ₹{(item.quantity * parseFloat(item.price)).toFixed(2)}
                           </div>
                         </div>
                       ))}
+                    </div>
+                    {(order.courier_name || order.tracking_number || order.estimated_delivery_date) && (
+                      <div className="mt-5 rounded-xl bg-primary/5 border border-primary/10 p-4 text-sm text-foreground">
+                        <p className="font-black mb-1">Tracking</p>
+                        <p>Courier: {order.courier_name || '-'}</p>
+                        <p>Tracking number: {order.tracking_number || '-'}</p>
+                        <p>Estimated delivery: {order.estimated_delivery_date ? new Date(order.estimated_delivery_date).toLocaleDateString() : '-'}</p>
+                      </div>
+                    )}
+                    <div className="mt-6 flex flex-col sm:flex-row gap-3">
+                      <button onClick={() => setSelectedOrder(order)} className="cursor-pointer rounded-xl bg-primary text-white px-5 py-3 font-black hover:bg-primary-dark transition">
+                        View Details
+                      </button>
+                      <button onClick={() => downloadReceipt(order)} className="cursor-pointer rounded-xl bg-primary/10 text-primary px-5 py-3 font-black hover:bg-primary/20 transition">
+                        Download Receipt
+                      </button>
+                      {['pending', 'processing'].includes(order.status) && (
+                        <button onClick={() => setCancelOrder(order)} className="cursor-pointer rounded-xl bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 px-5 py-3 font-black hover:bg-red-100 dark:hover:bg-red-900/30 transition">
+                          Cancel Order
+                        </button>
+                      )}
                     </div>
                   </motion.div>
                 ))}
@@ -217,7 +442,7 @@ export default function Profile() {
                 <Package className="w-16 h-16 text-gray-200 dark:text-gray-700 mx-auto mb-4" />
                 <h3 className="text-lg font-bold text-foreground mb-2">No orders yet</h3>
                 <p className="text-gray-500 dark:text-gray-400 mb-6">When you place orders, they will appear here.</p>
-                <button onClick={() => router.push('/products')} className="bg-primary text-white px-6 py-2.5 rounded-xl font-medium hover:bg-primary-dark transition shadow-lg shadow-primary/20">
+                <button onClick={() => router.push('/products')} className="cursor-pointer bg-primary text-white px-6 py-2.5 rounded-xl font-medium hover:bg-primary-dark transition shadow-lg shadow-primary/20">
                   Start Shopping
                 </button>
               </div>
@@ -226,6 +451,31 @@ export default function Profile() {
         </div>
 
       </div>
+      {selectedOrder && (
+        <OrderDetailsModal
+          order={selectedOrder}
+          onClose={() => setSelectedOrder(null)}
+          onCancel={(order) => setCancelOrder(order)}
+        />
+      )}
+      <ConfirmationModal
+        isOpen={!!cancelOrder}
+        onClose={() => setCancelOrder(null)}
+        onConfirm={handleCancelOrder}
+        title="Cancel order?"
+        message={cancelOrder ? `Cancel order #${cancelOrder.id.slice(0, 8)}? Paid orders may need admin refund processing.` : 'Cancel this order?'}
+        confirmText="Cancel order"
+        variant="danger"
+      />
+      <ConfirmationModal
+        isOpen={logoutOpen}
+        onClose={() => setLogoutOpen(false)}
+        onConfirm={logout}
+        title="Logout?"
+        message="You will need to sign in again before checking out or viewing your orders."
+        confirmText="Logout"
+        variant="warning"
+      />
     </div>
   );
 }

@@ -7,16 +7,15 @@ import { BASE_URL } from '../../services/api';
 import { Trash2, Plus, Minus, ArrowRight, ShoppingBag } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
+import { CartSkeleton } from '../../components/Skeletons';
+import ConfirmationModal from '../../components/ConfirmationModal';
 
 export default function Cart() {
   const { cart, subtotal, loading, updateQuantity, removeFromCart } = useCart();
+  const [removeItem, setRemoveItem] = React.useState<typeof cart[number] | null>(null);
 
   if (loading && cart.length === 0) {
-    return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex justify-center items-center min-h-[50vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
-      </div>
-    );
+    return <CartSkeleton />;
   }
 
   if (cart.length === 0) {
@@ -27,7 +26,7 @@ export default function Cart() {
         </div>
         <h2 className="text-3xl font-extrabold text-foreground mb-4">Your cart is empty</h2>
         <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto mb-8">Looks like you haven't added anything to your cart yet. Discover our premium plants and tools.</p>
-        <Link href="/products" className="bg-primary text-white px-8 py-3.5 rounded-xl font-bold hover:bg-primary-dark transition shadow-lg shadow-primary/20">
+        <Link href="/products" className="cursor-pointer bg-primary text-white px-8 py-3.5 rounded-xl font-bold hover:bg-primary-dark transition shadow-lg shadow-primary/20">
           Start Shopping
         </Link>
       </div>
@@ -65,7 +64,7 @@ export default function Cart() {
                   <Link href={`/products/${item.product_id}`}>
                     <h3 className="text-lg font-bold text-foreground hover:text-primary transition">{item.name}</h3>
                   </Link>
-                  <p className="text-gray-500 dark:text-gray-400 font-medium">${parseFloat(item.price).toFixed(2)}</p>
+                  <p className="text-gray-500 dark:text-gray-400 font-medium">₹{parseFloat(item.price).toFixed(2)}</p>
                 </div>
 
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-4 sm:gap-6 w-full sm:w-auto">
@@ -73,7 +72,7 @@ export default function Cart() {
                     <button 
                       onClick={() => updateQuantity(item.id, item.quantity - 1)}
                       disabled={item.quantity <= 1 || loading}
-                      className="p-2 text-gray-500 hover:text-primary disabled:opacity-50 transition"
+                      className="cursor-pointer p-2 text-gray-500 hover:text-primary disabled:cursor-not-allowed disabled:opacity-50 transition"
                     >
                       <Minus className="w-4 h-4" />
                     </button>
@@ -81,7 +80,7 @@ export default function Cart() {
                     <button 
                       onClick={() => updateQuantity(item.id, item.quantity + 1)}
                       disabled={item.quantity >= item.stock || loading}
-                      className="p-2 text-gray-500 hover:text-primary disabled:opacity-50 transition"
+                      className="cursor-pointer p-2 text-gray-500 hover:text-primary disabled:cursor-not-allowed disabled:opacity-50 transition"
                     >
                       <Plus className="w-4 h-4" />
                     </button>
@@ -89,12 +88,12 @@ export default function Cart() {
                   
                   <div className="text-left sm:text-right flex flex-row sm:flex-col items-center sm:items-end justify-between gap-2">
                     <span className="text-lg font-bold text-foreground">
-                      ${(parseFloat(item.price) * item.quantity).toFixed(2)}
+                      ₹{(parseFloat(item.price) * item.quantity).toFixed(2)}
                     </span>
                     <button 
-                      onClick={() => removeFromCart(item.id)}
+                      onClick={() => setRemoveItem(item)}
                       disabled={loading}
-                      className="text-red-500 hover:text-red-700 p-1 bg-red-50 hover:bg-red-100 rounded-md transition"
+                      className="cursor-pointer text-red-500 hover:text-red-700 p-1 bg-red-50 hover:bg-red-100 rounded-md transition disabled:cursor-not-allowed"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -113,7 +112,7 @@ export default function Cart() {
             <div className="space-y-4 text-gray-500 dark:text-gray-400 mb-6">
               <div className="flex justify-between">
                 <span>Subtotal ({cart.reduce((sum, item) => sum + item.quantity, 0)} items)</span>
-                <span className="font-medium text-foreground">${subtotal.toFixed(2)}</span>
+                <span className="font-medium text-foreground">₹{subtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span>Shipping</span>
@@ -128,13 +127,13 @@ export default function Cart() {
             <div className="border-t border-black/5 dark:border-white/10 pt-4 mb-8">
               <div className="flex justify-between items-center">
                 <span className="text-lg font-bold text-foreground">Total</span>
-                <span className="text-2xl font-extrabold text-primary">${subtotal.toFixed(2)}</span>
+                <span className="text-2xl font-extrabold text-primary">₹{subtotal.toFixed(2)}</span>
               </div>
             </div>
             
             <Link 
               href="/checkout"
-              className="w-full flex items-center justify-center space-x-2 bg-primary hover:bg-primary-dark text-white py-4 rounded-xl font-bold transition shadow-lg shadow-primary/20"
+              className="w-full cursor-pointer flex items-center justify-center space-x-2 bg-primary hover:bg-primary-dark text-white py-4 rounded-xl font-bold transition shadow-lg shadow-primary/20"
             >
               <span>Proceed to Checkout</span>
               <ArrowRight className="w-5 h-5" />
@@ -149,6 +148,17 @@ export default function Cart() {
           </div>
         </div>
       </div>
+      <ConfirmationModal
+        isOpen={!!removeItem}
+        onClose={() => setRemoveItem(null)}
+        onConfirm={async () => {
+          if (removeItem) await removeFromCart(removeItem.id);
+        }}
+        title="Remove item?"
+        message={removeItem ? `Remove "${removeItem.name}" from your cart?` : 'Remove this item from your cart?'}
+        confirmText="Remove"
+        variant="danger"
+      />
     </div>
   );
 }

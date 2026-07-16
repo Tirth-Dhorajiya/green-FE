@@ -31,7 +31,9 @@ export const endpoints = {
   orders: {
     create: '/orders',
     mine: '/orders/my',
+    detail: (id: string) => `/orders/${id}`,
     status: (id: string) => `/orders/${id}/status`,
+    cancel: (id: string) => `/orders/${id}/cancel`,
   },
   payments: {
     razorpayOrder: '/payments/razorpay/order',

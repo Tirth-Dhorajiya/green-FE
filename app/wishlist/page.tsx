@@ -1,11 +1,14 @@
 'use client';
 
+import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Heart, ShoppingCart, Trash2 } from 'lucide-react';
 import { BASE_URL } from '../../services/api';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
+import { ProductGridSkeleton } from '../../components/Skeletons';
+import ConfirmationModal from '../../components/ConfirmationModal';
 
 const fallbackImage = 'https://images.unsplash.com/photo-1463320726281-696a485928c7?q=80&w=600&auto=format&fit=crop';
 
@@ -15,8 +18,9 @@ const getImageUrl = (imageUrl?: string) => {
 };
 
 export default function WishlistPage() {
-  const { wishlist, removeFromWishlist } = useWishlist();
+  const { wishlist, loading, removeFromWishlist } = useWishlist();
   const { addToCart } = useCart();
+  const [removeProduct, setRemoveProduct] = useState<typeof wishlist[number] | null>(null);
 
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -30,7 +34,9 @@ export default function WishlistPage() {
         </Link>
       </div>
 
-      {wishlist.length === 0 ? (
+      {loading ? (
+        <ProductGridSkeleton count={6} />
+      ) : wishlist.length === 0 ? (
         <section className="min-h-[45vh] flex flex-col items-center justify-center text-center bg-card rounded-lg border border-black/5 dark:border-white/10 p-10">
           <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-6">
             <Heart className="w-10 h-10 text-primary" />
@@ -64,7 +70,7 @@ export default function WishlistPage() {
                       {product.name}
                     </Link>
                   </div>
-                  <p className="text-xl font-black text-primary">${parseFloat(product.price).toFixed(2)}</p>
+                  <p className="text-xl font-black text-primary">₹{parseFloat(product.price).toFixed(2)}</p>
                 </div>
                 <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 mb-6">{product.description || 'Saved product'}</p>
                 <div className="flex flex-col sm:flex-row gap-3">
@@ -72,15 +78,15 @@ export default function WishlistPage() {
                     type="button"
                     onClick={() => addToCart(product.id, 1)}
                     disabled={product.stock <= 0}
-                    className="flex-1 inline-flex items-center justify-center gap-2 bg-primary text-white px-4 py-3 rounded-xl font-black hover:bg-primary-dark transition disabled:opacity-50"
+                    className="flex-1 inline-flex cursor-pointer items-center justify-center gap-2 bg-primary text-white px-4 py-3 rounded-xl font-black hover:bg-primary-dark transition disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     <ShoppingCart className="w-4 h-4" />
                     {product.stock <= 0 ? 'Out of Stock' : 'Add to Cart'}
                   </button>
                   <button
                     type="button"
-                    onClick={() => removeFromWishlist(product.id)}
-                    className="w-full sm:w-12 h-12 inline-flex items-center justify-center rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500/20 transition"
+                    onClick={() => setRemoveProduct(product)}
+                    className="w-full cursor-pointer sm:w-12 h-12 inline-flex items-center justify-center rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500/20 transition"
                     aria-label="Remove from wishlist"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -91,6 +97,17 @@ export default function WishlistPage() {
           ))}
         </section>
       )}
+      <ConfirmationModal
+        isOpen={!!removeProduct}
+        onClose={() => setRemoveProduct(null)}
+        onConfirm={async () => {
+          if (removeProduct) await removeFromWishlist(removeProduct.id);
+        }}
+        title="Remove wishlist item?"
+        message={removeProduct ? `Remove "${removeProduct.name}" from your wishlist?` : 'Remove this item from your wishlist?'}
+        confirmText="Remove"
+        variant="danger"
+      />
     </main>
   );
 }

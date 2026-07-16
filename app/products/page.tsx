@@ -7,6 +7,7 @@ import { endpoints } from '../../services/apiConfig';
 import ProductCardV2 from '../../components/ProductCardV2';
 import { ChevronDown, Search, SlidersHorizontal, X } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { ProductGridSkeleton } from '../../components/Skeletons';
 
 function ProductsContent() {
   const searchParams = useSearchParams();
@@ -110,7 +111,7 @@ function ProductsContent() {
                   <button
                     type="button"
                     onClick={() => setIsSortOpen((open) => !open)}
-                    className="w-full h-14 rounded-xl border border-black/10 dark:border-white/10 bg-card pl-4 pr-4 text-sm font-black text-foreground outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10 transition flex items-center justify-between gap-3"
+                    className="w-full h-14 cursor-pointer rounded-xl border border-black/10 dark:border-white/10 bg-card pl-4 pr-4 text-sm font-black text-foreground outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10 transition flex items-center justify-between gap-3"
                     aria-haspopup="listbox"
                     aria-expanded={isSortOpen}
                   >
@@ -139,7 +140,7 @@ function ProductsContent() {
                             setSortBy(option.value);
                             setIsSortOpen(false);
                           }}
-                          className={`w-full px-4 py-3 text-left text-sm font-bold transition ${
+                          className={`w-full cursor-pointer px-4 py-3 text-left text-sm font-bold transition ${
                             sortBy === option.value
                               ? 'bg-primary text-white'
                               : 'text-foreground hover:bg-primary/10 hover:text-primary'
@@ -160,7 +161,7 @@ function ProductsContent() {
                   key={item.label}
                   type="button"
                   onClick={() => setCategory(item.value)}
-                  className={`shrink-0 rounded-lg border px-4 py-2 text-xs font-black uppercase tracking-[0.14em] transition ${
+                  className={`shrink-0 cursor-pointer rounded-lg border px-4 py-2 text-xs font-black uppercase tracking-[0.14em] transition ${
                     category === item.value
                       ? 'border-primary bg-primary text-white shadow-sm shadow-primary/20'
                       : 'border-black/10 dark:border-white/10 bg-card text-foreground hover:border-primary/40 hover:text-primary hover:bg-primary/10'
@@ -211,7 +212,7 @@ function ProductsContent() {
               <button
                 type="button"
                 onClick={resetFilters}
-                className="h-12 self-end rounded-xl border border-black/10 dark:border-white/10 bg-card px-4 text-sm font-black text-foreground hover:border-primary/40 hover:text-primary hover:bg-primary/10 transition inline-flex items-center justify-center gap-2"
+                className="h-12 cursor-pointer self-end rounded-xl border border-black/10 dark:border-white/10 bg-card px-4 text-sm font-black text-foreground hover:border-primary/40 hover:text-primary hover:bg-primary/10 transition inline-flex items-center justify-center gap-2"
               >
                 <X className="w-4 h-4" />
                 Reset
@@ -225,11 +226,7 @@ function ProductsContent() {
       <main className="px-4 sm:px-6 lg:px-12 py-14 sm:py-20 min-h-[60vh]">
         <div className="max-w-screen-2xl mx-auto">
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-12">
-              {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
-                <div key={i} className="aspect-[3/4] bg-black/5 dark:bg-white/5 animate-pulse rounded-xl" />
-              ))}
-            </div>
+            <ProductGridSkeleton count={8} />
           ) : products.length > 0 ? (
             <motion.div
               initial="hidden"
@@ -252,7 +249,7 @@ function ProductsContent() {
               <h2 className="text-4xl font-black text-gray-600 dark:text-gray-400 uppercase tracking-widest mb-6">No Specimens Found</h2>
               <button
                 onClick={resetFilters}
-                className="text-primary font-black uppercase tracking-widest hover:underline"
+                className="cursor-pointer text-primary font-black uppercase tracking-widest hover:underline"
               >
                 Reset All Filters
               </button>
@@ -268,7 +265,7 @@ function ProductsContent() {
 
 export default function ProductsPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-background" />}>
+    <Suspense fallback={<main className="min-h-screen bg-background px-4 py-20 sm:px-6 lg:px-12"><ProductGridSkeleton count={8} /></main>}>
       <ProductsContent />
     </Suspense>
   );

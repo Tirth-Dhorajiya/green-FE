@@ -8,6 +8,7 @@ import { useCart } from '../context/CartContext';
 import { ShoppingCart, Heart, User, Menu, X, LogOut, Leaf } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ThemeToggle from './ThemeToggle';
+import ConfirmationModal from './ConfirmationModal';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -15,6 +16,7 @@ export default function Navbar() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [logoutOpen, setLogoutOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown on outside click
@@ -35,6 +37,11 @@ export default function Navbar() {
   }, [pathname]);
 
   const isActive = (path: string) => pathname === path;
+  const requestLogout = () => {
+    setIsProfileOpen(false);
+    setIsMobileMenuOpen(false);
+    setLogoutOpen(true);
+  };
 
   return (
     <nav className="fixed top-4 left-1/2 -translate-x-1/2 w-[95%] max-w-7xl z-50 transition-all duration-300">
@@ -125,7 +132,7 @@ export default function Navbar() {
                         </Link>
 
                         <button
-                          onClick={() => { logout(); setIsProfileOpen(false); }}
+                          onClick={requestLogout}
                           className="flex items-center w-full px-3 py-2 text-sm text-red-400 hover:bg-red-400/10 rounded-lg transition-colors mt-1"
                         >
                           <LogOut className="w-4 h-4 mr-3" /> Logout
@@ -205,7 +212,7 @@ export default function Navbar() {
                 <>
                   <div className="h-[1px] bg-black/10 dark:bg-white/10 my-2" />
                   <Link href="/profile" className="block px-4 py-3 rounded-xl text-base font-black text-foreground hover:text-primary hover:bg-primary/10 transition-all">Profile</Link>
-                  <button onClick={logout} className="block w-full text-left px-4 py-3 rounded-xl text-base font-bold text-red-400 hover:bg-red-400/10 transition-all">Logout</button>
+                  <button onClick={requestLogout} className="block w-full text-left px-4 py-3 rounded-xl text-base font-bold text-red-400 hover:bg-red-400/10 transition-all">Logout</button>
                 </>
               ) : (
                 <Link href="/login" className="block px-4 py-3 rounded-xl text-base font-bold bg-primary text-white text-center shadow-sm">Login</Link>
@@ -214,6 +221,15 @@ export default function Navbar() {
           </motion.div>
         )}
       </AnimatePresence>
+      <ConfirmationModal
+        isOpen={logoutOpen}
+        onClose={() => setLogoutOpen(false)}
+        onConfirm={logout}
+        title="Logout?"
+        message="You will need to sign in again before checking out or viewing your orders."
+        confirmText="Logout"
+        variant="warning"
+      />
     </nav>
 
 

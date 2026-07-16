@@ -5,6 +5,7 @@ import api from '../services/api';
 import { endpoints } from '../services/apiConfig';
 import { useAuth } from './AuthContext';
 import toast from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
 
 interface CartItem {
   id: string;
@@ -35,6 +36,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [subtotal, setSubtotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const { user, token } = useAuth();
+  const router = useRouter();
 
   const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
 
@@ -63,7 +65,11 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const addToCart = async (productId: string, quantity: number = 1) => {
     if (!user) {
+      const redirectPath = typeof window !== 'undefined'
+        ? `${window.location.pathname}${window.location.search}`
+        : '/products';
       toast.error('Please login to add items to cart');
+      router.push(`/login?redirect=${encodeURIComponent(redirectPath)}`);
       return;
     }
     try {

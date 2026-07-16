@@ -20,6 +20,7 @@ export interface WishlistProduct {
 interface WishlistContextType {
   wishlist: WishlistProduct[];
   wishlistCount: number;
+  loading: boolean;
   isWishlisted: (productId: string) => boolean;
   toggleWishlist: (product: WishlistProduct) => Promise<void>;
   removeFromWishlist: (productId: string) => Promise<void>;
@@ -30,6 +31,7 @@ const STORAGE_KEY = 'green_wishlist';
 
 export function WishlistProvider({ children }: { children: ReactNode }) {
   const [wishlist, setWishlist] = useState<WishlistProduct[]>([]);
+  const [loading, setLoading] = useState(true);
   const { user } = useAuth();
 
   useEffect(() => {
@@ -38,6 +40,8 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
       if (stored) setWishlist(JSON.parse(stored));
     } catch {
       setWishlist([]);
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -46,12 +50,15 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
       if (!user) return;
 
       try {
+        setLoading(true);
         const res = await api.get(endpoints.wishlist.list);
         if (res.data.success) {
           setWishlist(res.data.wishlist || []);
         }
       } catch {
         toast.error('Unable to load wishlist');
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -112,7 +119,7 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <WishlistContext.Provider value={{ wishlist, wishlistCount: wishlist.length, isWishlisted, toggleWishlist, removeFromWishlist }}>
+    <WishlistContext.Provider value={{ wishlist, wishlistCount: wishlist.length, loading, isWishlisted, toggleWishlist, removeFromWishlist }}>
       {children}
     </WishlistContext.Provider>
   );

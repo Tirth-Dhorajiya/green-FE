@@ -11,6 +11,7 @@ import { CreditCard, CheckCircle, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import Script from 'next/script';
 import { motion } from 'framer-motion';
+import { FormPageSkeleton } from '../../components/Skeletons';
 
 declare global {
   interface Window {
@@ -19,7 +20,7 @@ declare global {
 }
 
 export default function Checkout() {
-  const { cart, subtotal, fetchCart } = useCart();
+  const { cart, subtotal, fetchCart, loading: cartLoading } = useCart();
   const { user, loading } = useAuth();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -29,9 +30,13 @@ export default function Checkout() {
   const [shippingAddress, setShippingAddress] = useState({
     firstName: '',
     lastName: '',
+    phone: '',
     address: '',
     city: '',
+    state: '',
+    country: 'India',
     postalCode: '',
+    landmark: '',
   });
 
   useEffect(() => {
@@ -43,9 +48,13 @@ export default function Checkout() {
         ...current,
         firstName: savedFirstName,
         lastName: savedLastNameParts.join(' ') || lastNameParts.join(' '),
+        phone: savedAddress.phone || current.phone,
         address: savedAddress.address || current.address,
         city: savedAddress.city || current.city,
+        state: savedAddress.state || current.state,
+        country: savedAddress.country || current.country,
         postalCode: savedAddress.postalCode || current.postalCode,
+        landmark: savedAddress.landmark || current.landmark,
       }));
     }
   }, [user]);
@@ -79,7 +88,7 @@ export default function Checkout() {
   useEffect(() => {
     if (!loading && !user) {
       toast.error('Please login to checkout');
-      router.push('/login');
+      router.push('/login?redirect=/checkout');
     }
     if (cart.length === 0 && !orderSuccess && !loading) {
       router.push('/cart');
@@ -97,9 +106,13 @@ export default function Checkout() {
       setIsSubmitting(true);
       const shippingPayload = {
         name: `${shippingAddress.firstName} ${shippingAddress.lastName}`.trim(),
+        phone: shippingAddress.phone,
         address: shippingAddress.address,
         city: shippingAddress.city,
+        state: shippingAddress.state,
+        country: shippingAddress.country,
         postalCode: shippingAddress.postalCode,
+        landmark: shippingAddress.landmark,
       };
 
       const res = await api.post(endpoints.payments.razorpayOrder, {
@@ -175,6 +188,10 @@ export default function Checkout() {
     );
   }
 
+  if (loading || (cartLoading && cart.length === 0)) {
+    return <FormPageSkeleton />;
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <Link href="/cart" className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-primary mb-8 transition">
@@ -200,6 +217,10 @@ export default function Checkout() {
                 </div>
               </div>
               <div>
+                <label className="block text-sm font-medium text-foreground/70 mb-1">Phone Number</label>
+                <input type="tel" required value={shippingAddress.phone} onChange={(event) => setShippingAddress({ ...shippingAddress, phone: event.target.value })} className="w-full px-4 py-2 border border-black/10 dark:border-white/10 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none bg-black/5 dark:bg-white/5 text-foreground" placeholder="+91 98765 43210" />
+              </div>
+              <div>
                 <label className="block text-sm font-medium text-foreground/70 mb-1">Address</label>
                 <input type="text" required value={shippingAddress.address} onChange={(event) => setShippingAddress({ ...shippingAddress, address: event.target.value })} className="w-full px-4 py-2 border border-black/10 dark:border-white/10 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none bg-black/5 dark:bg-white/5 text-foreground" placeholder="123 Green St" />
               </div>
@@ -209,9 +230,21 @@ export default function Checkout() {
                   <input type="text" required value={shippingAddress.city} onChange={(event) => setShippingAddress({ ...shippingAddress, city: event.target.value })} className="w-full px-4 py-2 border border-black/10 dark:border-white/10 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none bg-black/5 dark:bg-white/5 text-foreground" />
                 </div>
                 <div>
+                  <label className="block text-sm font-medium text-foreground/70 mb-1">State</label>
+                  <input type="text" value={shippingAddress.state} onChange={(event) => setShippingAddress({ ...shippingAddress, state: event.target.value })} className="w-full px-4 py-2 border border-black/10 dark:border-white/10 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none bg-black/5 dark:bg-white/5 text-foreground" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-foreground/70 mb-1">Country</label>
+                  <input type="text" value={shippingAddress.country} onChange={(event) => setShippingAddress({ ...shippingAddress, country: event.target.value })} className="w-full px-4 py-2 border border-black/10 dark:border-white/10 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none bg-black/5 dark:bg-white/5 text-foreground" />
+                </div>
+                <div>
                   <label className="block text-sm font-medium text-foreground/70 mb-1">Postal Code</label>
                   <input type="text" required value={shippingAddress.postalCode} onChange={(event) => setShippingAddress({ ...shippingAddress, postalCode: event.target.value })} className="w-full px-4 py-2 border border-black/10 dark:border-white/10 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none bg-black/5 dark:bg-white/5 text-foreground" />
                 </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground/70 mb-1">Landmark</label>
+                <input type="text" value={shippingAddress.landmark} onChange={(event) => setShippingAddress({ ...shippingAddress, landmark: event.target.value })} className="w-full px-4 py-2 border border-black/10 dark:border-white/10 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none bg-black/5 dark:bg-white/5 text-foreground" placeholder="Near garden gate" />
               </div>
             </form>
           </div>
@@ -234,7 +267,7 @@ export default function Checkout() {
               {cart.map((item) => (
                 <div key={item.id} className="flex justify-between text-sm">
                   <span className="text-gray-600 dark:text-gray-400">{item.quantity} x {item.name}</span>
-                  <span className="font-medium text-foreground">${(item.quantity * parseFloat(item.price)).toFixed(2)}</span>
+                  <span className="font-medium text-foreground">₹{(item.quantity * parseFloat(item.price)).toFixed(2)}</span>
                 </div>
               ))}
             </div>
@@ -242,7 +275,7 @@ export default function Checkout() {
             <div className="border-t border-black/5 dark:border-white/10 pt-4 space-y-3 text-gray-500 dark:text-gray-400 mb-6">
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span className="font-medium text-foreground">${subtotal.toFixed(2)}</span>
+                <span className="font-medium text-foreground">₹{subtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span>Shipping</span>
@@ -251,7 +284,7 @@ export default function Checkout() {
               {appliedCoupon && (
                 <div className="flex justify-between text-primary">
                   <span>Coupon ({appliedCoupon.code})</span>
-                  <span className="font-medium">-${appliedCoupon.discount.toFixed(2)}</span>
+                  <span className="font-medium">-₹{appliedCoupon.discount.toFixed(2)}</span>
                 </div>
               )}
             </div>
@@ -267,7 +300,7 @@ export default function Checkout() {
               <button
                 type="button"
                 onClick={applyCoupon}
-                className="px-4 py-3 rounded-xl bg-primary/10 text-primary text-sm font-black hover:bg-primary/20 transition"
+                className="cursor-pointer px-4 py-3 rounded-xl bg-primary/10 text-primary text-sm font-black hover:bg-primary/20 transition"
               >
                 Apply
               </button>
@@ -276,7 +309,7 @@ export default function Checkout() {
             <div className="border-t border-black/5 dark:border-white/10 pt-4 mb-8">
               <div className="flex justify-between items-center">
                 <span className="text-lg font-bold text-foreground">Total</span>
-                <span className="text-2xl font-extrabold text-primary">${Math.max(0, subtotal - (appliedCoupon?.discount || 0)).toFixed(2)}</span>
+                <span className="text-2xl font-extrabold text-primary">₹{Math.max(0, subtotal - (appliedCoupon?.discount || 0)).toFixed(2)}</span>
               </div>
             </div>
             
@@ -284,7 +317,7 @@ export default function Checkout() {
               form="checkout-form"
               type="submit"
               disabled={isSubmitting || cart.length === 0}
-              className="w-full flex items-center justify-center space-x-2 bg-primary hover:bg-primary-dark text-white py-4 rounded-xl font-bold transition shadow-lg shadow-primary/20 disabled:opacity-50"
+              className="w-full cursor-pointer flex items-center justify-center space-x-2 bg-primary hover:bg-primary-dark text-white py-4 rounded-xl font-bold transition shadow-lg shadow-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isSubmitting ? 'Processing...' : 'Pay with Razorpay'}
             </button>

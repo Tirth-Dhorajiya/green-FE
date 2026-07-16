@@ -5,6 +5,7 @@ import { X, Upload, Loader2, Star, Image as ImageIcon, Trash2, Check } from 'luc
 import api, { BASE_URL } from '../services/api';
 import { endpoints } from '../services/apiConfig';
 import toast from 'react-hot-toast';
+import ConfirmationModal from './ConfirmationModal';
 
 interface ProductModalProps {
   isOpen: boolean;
@@ -26,6 +27,7 @@ interface ImageEntry {
 export default function ProductModal({ isOpen, onClose, onSuccess, product }: ProductModalProps) {
   const [formData, setFormData] = useState({ name: '', description: '', price: '', category: 'plants', stock: '', is_featured: false });
   const [images, setImages] = useState<ImageEntry[]>([]);
+  const [imageToRemove, setImageToRemove] = useState<ImageEntry | null>(null);
   const [loading, setLoading] = useState(false);
   const isEdit = !!product;
 
@@ -256,7 +258,7 @@ export default function ProductModal({ isOpen, onClose, onSuccess, product }: Pr
                           className={`w-full flex items-center justify-center gap-1 py-1 rounded-lg text-[10px] font-black transition ${img.is_thumbnail ? 'bg-amber-500 text-white' : 'bg-white/20 text-white hover:bg-amber-500'}`}>
                           <ImageIcon className="w-3 h-3" /> Set Thumb
                         </button>
-                        <button type="button" onClick={() => removeImage(img.id)}
+                        <button type="button" onClick={() => setImageToRemove(img)}
                           className="w-full flex items-center justify-center gap-1 py-1 rounded-lg text-[10px] font-black bg-red-500/80 hover:bg-red-500 text-white transition">
                           <Trash2 className="w-3 h-3" /> Remove
                         </button>
@@ -301,7 +303,7 @@ export default function ProductModal({ isOpen, onClose, onSuccess, product }: Pr
                     </select>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-xs font-black uppercase tracking-widest text-gray-600 dark:text-gray-400">Price ($) *</label>
+                    <label className="text-xs font-black uppercase tracking-widest text-gray-600 dark:text-gray-400">Price (₹) *</label>
                     <input type="number" step="0.01" required value={formData.price} onChange={e => setFormData({ ...formData, price: e.target.value })}
                       className="w-full px-6 py-4 rounded-lg border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 outline-none font-bold text-foreground" />
                   </div>
@@ -340,6 +342,17 @@ export default function ProductModal({ isOpen, onClose, onSuccess, product }: Pr
           </div>
         </form>
       </div>
+      <ConfirmationModal
+        isOpen={!!imageToRemove}
+        onClose={() => setImageToRemove(null)}
+        onConfirm={() => {
+          if (imageToRemove) removeImage(imageToRemove.id);
+        }}
+        title="Remove image?"
+        message="This image will be removed from the product before saving."
+        confirmText="Remove"
+        variant="danger"
+      />
     </div>
   );
 }

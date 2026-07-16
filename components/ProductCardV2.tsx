@@ -4,10 +4,11 @@ import React from 'react';
 import { BASE_URL } from '../services/api';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Heart, ShoppingCart, ArrowUpRight } from 'lucide-react';
+import { Heart, ShoppingCart } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { motion } from 'framer-motion';
+import ConfirmationModal from './ConfirmationModal';
 
 interface Product {
   id: string;
@@ -22,9 +23,18 @@ interface Product {
 export default function ProductCardV2({ product }: { product: Product }) {
   const { addToCart } = useCart();
   const { isWishlisted, toggleWishlist } = useWishlist();
+  const [confirmRemove, setConfirmRemove] = React.useState(false);
   const imageUrl = product.image_url 
     ? (product.image_url.startsWith('http') ? product.image_url : `${BASE_URL}${product.image_url}`)
     : 'https://images.unsplash.com/photo-1463320726281-696a485928c7?q=80&w=600&auto=format&fit=crop';
+
+  const handleWishlistToggle = () => {
+    if (isWishlisted(product.id)) {
+      setConfirmRemove(true);
+      return;
+    }
+    toggleWishlist(product);
+  };
 
   return (
     <motion.div
@@ -57,18 +67,12 @@ export default function ProductCardV2({ product }: { product: Product }) {
         <div className="absolute top-6 right-6 flex gap-2">
           <button
             type="button"
-            onClick={() => toggleWishlist(product)}
+            onClick={handleWishlistToggle}
             className="w-12 h-12 rounded-full bg-white/90 dark:bg-black/90 backdrop-blur-md flex items-center justify-center text-foreground hover:bg-primary hover:text-white transition-all duration-500 opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 shadow-2xl"
             aria-label={isWishlisted(product.id) ? 'Remove from wishlist' : 'Add to wishlist'}
           >
             <Heart className={`w-5 h-5 ${isWishlisted(product.id) ? 'fill-current text-primary' : ''}`} />
           </button>
-          <Link 
-            href={`/products/${product.id}`}
-            className="w-12 h-12 rounded-full bg-white/90 dark:bg-black/90 backdrop-blur-md flex items-center justify-center text-foreground hover:bg-primary hover:text-white transition-all duration-500 opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 shadow-2xl"
-          >
-            <ArrowUpRight className="w-5 h-5" />
-          </Link>
         </div>
 
         {/* Quick Add Overlay */}
@@ -101,7 +105,7 @@ export default function ProductCardV2({ product }: { product: Product }) {
         <div className="flex items-center gap-4">
            <div className="h-[1px] w-8 bg-black/10 dark:bg-white/10" />
            <span className="text-2xl font-black text-primary tracking-tight">
-             ${parseFloat(product.price).toFixed(2)}
+             ₹{parseFloat(product.price).toFixed(2)}
            </span>
            <div className="h-[1px] w-8 bg-black/10 dark:bg-white/10" />
         </div>
@@ -109,6 +113,15 @@ export default function ProductCardV2({ product }: { product: Product }) {
 
       {/* Decorative Gradient */}
       <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-primary/5 rounded-full blur-3xl group-hover:bg-primary/10 transition-all duration-700" />
+      <ConfirmationModal
+        isOpen={confirmRemove}
+        onClose={() => setConfirmRemove(false)}
+        onConfirm={() => toggleWishlist(product)}
+        title="Remove wishlist item?"
+        message={`Remove "${product.name}" from your wishlist?`}
+        confirmText="Remove"
+        variant="danger"
+      />
     </motion.div>
   );
 }

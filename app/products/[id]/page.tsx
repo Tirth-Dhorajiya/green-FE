@@ -8,10 +8,12 @@ import { endpoints } from '../../../services/apiConfig';
 import { useAuth } from '../../../context/AuthContext';
 import { useCart } from '../../../context/CartContext';
 import { useWishlist } from '../../../context/WishlistContext';
-import { ShoppingCart, Heart, ArrowLeft, ShieldCheck, Truck, RotateCcw, ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react';
+import { ShoppingCart, Heart, ArrowLeft, ShieldCheck, Truck, RotateCcw, ChevronLeft, ChevronRight } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
+import { ProductDetailsSkeleton, SkeletonBlock } from '../../../components/Skeletons';
+import ConfirmationModal from '../../../components/ConfirmationModal';
 
 interface ProductImage {
   url: string;
@@ -26,11 +28,12 @@ export default function ProductDetails() {
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [activeIdx, setActiveIdx] = useState(0);
-  const [lightboxOpen, setLightboxOpen] = useState(false);
   const [reviews, setReviews] = useState<any[]>([]);
+  const [reviewsLoading, setReviewsLoading] = useState(true);
   const [reviewSummary, setReviewSummary] = useState({ average_rating: 0, review_count: 0 });
   const [reviewForm, setReviewForm] = useState({ rating: 5, comment: '' });
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
+  const [confirmWishlistRemove, setConfirmWishlistRemove] = useState(false);
   const { addToCart } = useCart();
   const { isWishlisted, toggleWishlist } = useWishlist();
   const { user } = useAuth();
@@ -57,6 +60,7 @@ export default function ProductDetails() {
 
   const fetchReviews = async () => {
     try {
+      setReviewsLoading(true);
       const res = await api.get(endpoints.products.reviews(productId));
       if (res.data.success) {
         setReviews(res.data.reviews || []);
@@ -64,6 +68,8 @@ export default function ProductDetails() {
       }
     } catch {
       console.error('Failed to load reviews');
+    } finally {
+      setReviewsLoading(false);
     }
   };
 
@@ -93,11 +99,7 @@ export default function ProductDetails() {
     }
   };
 
-  if (loading) return (
-    <div className="max-w-7xl mx-auto px-4 py-24 flex justify-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
-    </div>
-  );
+  if (loading) return <ProductDetailsSkeleton />;
 
   if (!product) return (
     <div className="max-w-7xl mx-auto px-4 py-20 text-center">
@@ -130,6 +132,13 @@ export default function ProductDetails() {
 
   const prev = () => setActiveIdx(i => (i - 1 + gallery.length) % gallery.length);
   const next = () => setActiveIdx(i => (i + 1) % gallery.length);
+  const handleWishlistToggle = () => {
+    if (isWishlisted(product.id)) {
+      setConfirmWishlistRemove(true);
+      return;
+    }
+    toggleWishlist(product);
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -164,21 +173,14 @@ export default function ProductDetails() {
 
             {gallery.length > 1 && (
               <>
-                <button onClick={prev} className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-white/90 dark:bg-black/70 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition hover:bg-primary hover:text-white">
+                <button onClick={prev} className="absolute left-4 top-1/2 -translate-y-1/2 cursor-pointer p-2 bg-white/90 dark:bg-black/70 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition hover:bg-primary hover:text-white">
                   <ChevronLeft className="w-5 h-5" />
                 </button>
-                <button onClick={next} className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-white/90 dark:bg-black/70 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition hover:bg-primary hover:text-white">
+                <button onClick={next} className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer p-2 bg-white/90 dark:bg-black/70 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition hover:bg-primary hover:text-white">
                   <ChevronRight className="w-5 h-5" />
                 </button>
               </>
             )}
-
-            <button
-              onClick={() => setLightboxOpen(true)}
-              className="absolute top-4 right-4 p-2 bg-white/80 dark:bg-black/60 rounded-xl opacity-0 group-hover:opacity-100 transition hover:bg-primary hover:text-white"
-            >
-              <ZoomIn className="w-5 h-5" />
-            </button>
 
             {product.stock <= 0 && (
               <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center">
@@ -194,7 +196,7 @@ export default function ProductDetails() {
                 <button
                   key={i}
                   onClick={() => setActiveIdx(i)}
-                  className={`flex-none w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${i === activeIdx ? 'border-primary shadow-lg shadow-primary/20 scale-105' : 'border-transparent hover:border-primary/40'}`}
+                  className={`flex-none h-20 w-20 cursor-pointer overflow-hidden rounded-lg border-2 transition-all ${i === activeIdx ? 'border-primary shadow-lg shadow-primary/20 scale-105' : 'border-transparent hover:border-primary/40'}`}
                 >
                   <Image src={img.url} alt={`thumb-${i}`} width={80} height={80} className="w-full h-full object-cover" />
                 </button>
@@ -208,14 +210,12 @@ export default function ProductDetails() {
           <div className="mb-8">
             <div className="flex justify-between items-start mb-3">
               <span className="text-sm font-black text-primary uppercase tracking-widest">{product.category}</span>
-              {product.stock > 0 ? (
-                <span className="bg-primary/10 text-primary text-xs px-3 py-1 rounded-full font-bold">In Stock ({product.stock})</span>
-              ) : (
+              {product.stock <= 0 && (
                 <span className="bg-red-100 dark:bg-red-900/30 text-red-600 text-xs px-3 py-1 rounded-full font-bold">Out of Stock</span>
               )}
             </div>
             <h1 className="text-4xl md:text-5xl font-extrabold text-foreground mb-4 tracking-tight">{product.name}</h1>
-            <p className="text-3xl font-bold text-foreground">${parseFloat(product.price).toFixed(2)}</p>
+            <p className="text-3xl font-bold text-foreground">₹{parseFloat(product.price).toFixed(2)}</p>
           </div>
 
           <div className="prose prose-green dark:prose-invert max-w-none text-gray-700 dark:text-gray-400 mb-8">
@@ -225,15 +225,15 @@ export default function ProductDetails() {
           <div className="mt-auto space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center gap-4">
               <div className="flex items-center border-2 border-black/5 dark:border-white/10 rounded-xl bg-card w-full sm:w-32 h-14 shrink-0">
-                <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="flex-1 h-full flex items-center justify-center text-gray-700 dark:text-gray-400 hover:text-primary transition">-</button>
+                <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="flex-1 h-full cursor-pointer flex items-center justify-center text-gray-700 dark:text-gray-400 hover:text-primary transition">-</button>
                 <span className="w-10 text-center font-bold text-lg text-foreground">{quantity}</span>
-                <button onClick={() => setQuantity(Math.min(product.stock, quantity + 1))} className="flex-1 h-full flex items-center justify-center text-gray-700 dark:text-gray-400 hover:text-primary transition">+</button>
+                <button onClick={() => setQuantity(Math.min(product.stock, quantity + 1))} className="flex-1 h-full cursor-pointer flex items-center justify-center text-gray-700 dark:text-gray-400 hover:text-primary transition">+</button>
               </div>
 
               <button
                 onClick={() => addToCart(product.id, quantity)}
                 disabled={product.stock <= 0}
-                className="flex-1 flex items-center justify-center space-x-2 bg-primary hover:bg-primary-dark text-white h-14 rounded-xl font-bold text-lg transition duration-300 shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 flex cursor-pointer items-center justify-center space-x-2 bg-primary hover:bg-primary-dark text-white h-14 rounded-xl font-bold text-lg transition duration-300 shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <ShoppingCart className="w-5 h-5" />
                 <span>Add to Cart</span>
@@ -241,8 +241,8 @@ export default function ProductDetails() {
 
               <button
                 type="button"
-                onClick={() => toggleWishlist(product)}
-                className="h-14 w-full sm:w-14 shrink-0 flex items-center justify-center bg-primary/10 text-primary hover:bg-primary/20 rounded-xl transition border border-primary/20"
+                onClick={handleWishlistToggle}
+                className="h-14 w-full cursor-pointer sm:w-14 shrink-0 flex items-center justify-center bg-primary/10 text-primary hover:bg-primary/20 rounded-xl transition border border-primary/20"
                 aria-label={isWishlisted(product.id) ? 'Remove from wishlist' : 'Add to wishlist'}
               >
                 <Heart className={`w-6 h-6 ${isWishlisted(product.id) ? 'fill-current' : ''}`} />
@@ -251,7 +251,7 @@ export default function ProductDetails() {
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-8 border-t border-black/5 dark:border-white/10">
               {[
-                { icon: Truck, title: 'Free Shipping', sub: 'On orders over $50' },
+                { icon: Truck, title: 'Free Shipping', sub: 'On orders over ₹50' },
                 { icon: RotateCcw, title: 'Easy Returns', sub: '30 days return policy' },
                 { icon: ShieldCheck, title: 'Secure Payment', sub: '100% secure checkout' },
               ].map(({ icon: Icon, title, sub }) => (
@@ -305,7 +305,7 @@ export default function ProductDetails() {
               <button
                 type="submit"
                 disabled={reviewSubmitting}
-                className="w-full bg-primary hover:bg-primary-dark text-white rounded-xl py-3 font-bold disabled:opacity-60"
+                className="w-full cursor-pointer bg-primary hover:bg-primary-dark text-white rounded-xl py-3 font-bold disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {reviewSubmitting ? 'Submitting...' : 'Submit Verified Review'}
               </button>
@@ -313,7 +313,11 @@ export default function ProductDetails() {
           </div>
 
           <div className="space-y-4">
-            {reviews.length > 0 ? reviews.map((review) => (
+            {reviewsLoading ? (
+              <div className="space-y-4">
+                {[1, 2, 3].map((item) => <SkeletonBlock key={item} className="h-32 w-full" />)}
+              </div>
+            ) : reviews.length > 0 ? reviews.map((review) => (
               <article key={review.id} className="bg-card rounded-lg border border-black/5 dark:border-white/10 p-6">
                 <div className="flex items-start justify-between gap-4 mb-3">
                   <div>
@@ -333,43 +337,15 @@ export default function ProductDetails() {
         </div>
       </section>
 
-      {/* ── Lightbox ── */}
-      <AnimatePresence>
-        {lightboxOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[200] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4"
-            onClick={() => setLightboxOpen(false)}
-          >
-            <motion.div
-              key={activeIdx}
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              className="relative w-full h-full max-w-5xl max-h-[90vh]"
-              onClick={e => e.stopPropagation()}
-            >
-              <Image src={activeUrl} alt={product.name} fill sizes="100vw" className="object-contain rounded-lg" />
-            </motion.div>
-            {gallery.length > 1 && (
-              <>
-                <button onClick={e => { e.stopPropagation(); prev(); }}
-                  className="absolute left-6 p-3 bg-white/10 hover:bg-white/20 rounded-full text-white transition">
-                  <ChevronLeft className="w-7 h-7" />
-                </button>
-                <button onClick={e => { e.stopPropagation(); next(); }}
-                  className="absolute right-6 p-3 bg-white/10 hover:bg-white/20 rounded-full text-white transition">
-                  <ChevronRight className="w-7 h-7" />
-                </button>
-              </>
-            )}
-            <button onClick={() => setLightboxOpen(false)} className="absolute top-6 right-6 p-3 bg-white/10 hover:bg-white/20 rounded-full text-white transition">
-              ✕
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <ConfirmationModal
+        isOpen={confirmWishlistRemove}
+        onClose={() => setConfirmWishlistRemove(false)}
+        onConfirm={() => toggleWishlist(product)}
+        title="Remove wishlist item?"
+        message={`Remove "${product.name}" from your wishlist?`}
+        confirmText="Remove"
+        variant="danger"
+      />
     </div>
   );
 }

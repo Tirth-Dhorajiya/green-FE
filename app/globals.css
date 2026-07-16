@@ -58,6 +58,17 @@ textarea {
   color: var(--foreground);
 }
 
+a[href],
+button:not(:disabled),
+[role="button"],
+label[for] {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
 input::placeholder,
 textarea::placeholder {
   color: #6b7280;

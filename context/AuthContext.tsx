@@ -14,9 +14,13 @@ interface User {
   email_verified?: boolean;
   address?: {
     name?: string;
+    phone?: string;
     address?: string;
     city?: string;
+    state?: string;
+    country?: string;
     postalCode?: string;
+    landmark?: string;
   };
 }
 
