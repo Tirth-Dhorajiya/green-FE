@@ -43,11 +43,4 @@ export const endpoints = {
   contact: {
     submit: '/contact',
   },
-  admin: {
-    stats: '/admin/stats',
-    orders: '/admin/orders',
-    customers: '/admin/customers',
-    reviews: '/admin/reviews',
-    reviewStatus: (id: string) => `/admin/reviews/${id}/status`,
-  },
 };

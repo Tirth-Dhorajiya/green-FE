@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
-import { ShoppingCart, Heart, User, Menu, X, LogOut, LayoutDashboard, Leaf } from 'lucide-react';
+import { ShoppingCart, Heart, User, Menu, X, LogOut, Leaf } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ThemeToggle from './ThemeToggle';
 
@@ -101,7 +101,7 @@ export default function Navbar() {
                   onClick={() => setIsProfileOpen(!isProfileOpen)}
                   className={`flex items-center space-x-2 p-1.5 rounded-xl transition-all duration-300 focus:outline-none ${isProfileOpen ? 'bg-primary/10' : 'hover:bg-primary/10'}`}
                 >
-                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${isActive('/profile') || isActive('/admin') ? 'bg-primary text-white' : 'bg-primary/20 text-primary'}`}>
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${isActive('/profile') ? 'bg-primary text-white' : 'bg-primary/20 text-primary'}`}>
                     <User className="w-5 h-5" />
                   </div>
                 </button>
@@ -120,12 +120,6 @@ export default function Navbar() {
                       </div>
 
                       <div className="p-1">
-                        {user.role === 'admin' && (
-                          <Link href="/admin" className="flex items-center px-3 py-2 text-sm font-bold text-foreground hover:text-primary hover:bg-primary/10 rounded-lg transition-colors">
-                            <LayoutDashboard className="w-4 h-4 mr-3 text-primary" /> Admin Dashboard
-                          </Link>
-                        )}
-
                         <Link href="/profile" className="flex items-center px-3 py-2 text-sm font-bold text-foreground hover:text-primary hover:bg-primary/10 rounded-lg transition-colors">
                           <User className="w-4 h-4 mr-3 text-primary" /> Profile & Orders
                         </Link>
@@ -211,9 +205,6 @@ export default function Navbar() {
                 <>
                   <div className="h-[1px] bg-black/10 dark:bg-white/10 my-2" />
                   <Link href="/profile" className="block px-4 py-3 rounded-xl text-base font-black text-foreground hover:text-primary hover:bg-primary/10 transition-all">Profile</Link>
-                  {user.role === 'admin' && (
-                    <Link href="/admin" className="block px-4 py-3 rounded-xl text-base font-black text-primary hover:bg-primary/10 transition-all">Admin Dashboard</Link>
-                  )}
                   <button onClick={logout} className="block w-full text-left px-4 py-3 rounded-xl text-base font-bold text-red-400 hover:bg-red-400/10 transition-all">Logout</button>
                 </>
               ) : (
