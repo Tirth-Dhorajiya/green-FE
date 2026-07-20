@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { BASE_URL } from '../services/api';
 import Link from 'next/link';
@@ -7,6 +9,7 @@ import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { motion } from 'framer-motion';
 import ConfirmationModal from './ConfirmationModal';
+import { productDescriptionText } from '../utils/productDescription';
 
 interface Product {
   id: string;
@@ -25,6 +28,7 @@ export default function ProductCard({ product }: { product: Product }) {
   const imageUrl = product.image_url 
     ? (product.image_url.startsWith('http') ? product.image_url : `${BASE_URL}${product.image_url}`)
     : 'https://images.unsplash.com/photo-1463320726281-696a485928c7?q=80&w=600&auto=format&fit=crop';
+  const descriptionText = productDescriptionText(product.description);
 
   const handleWishlistToggle = () => {
     if (isWishlisted(product.id)) {
@@ -48,11 +52,11 @@ export default function ProductCard({ product }: { product: Product }) {
             src={imageUrl}
             alt={product.name}
             fill
-            sizes="(max-width: 768px) 100vw, 25vw"
+            sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 25vw"
             className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-700 ease-out"
           />
         </Link>
-        <div className="absolute top-4 right-4 flex flex-col gap-2 translate-x-12 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-500">
+        <div className="absolute right-3 top-3 flex translate-x-0 flex-col gap-2 opacity-100 transition-all duration-500 md:right-4 md:top-4 md:translate-x-12 md:opacity-0 md:group-hover:translate-x-0 md:group-hover:opacity-100">
           <button
             type="button"
             onClick={handleWishlistToggle}
@@ -76,7 +80,7 @@ export default function ProductCard({ product }: { product: Product }) {
               {product.category}
             </span>
             <Link href={`/products/${product.id}`}>
-              <h3 className="text-xl font-black text-foreground hover:text-primary transition-colors line-clamp-1 tracking-tight leading-tight">
+              <h3 className="line-clamp-2 break-words text-xl font-black leading-tight tracking-tight text-foreground transition-colors hover:text-primary" title={product.name}>
                 {product.name}
               </h3>
             </Link>
@@ -86,8 +90,8 @@ export default function ProductCard({ product }: { product: Product }) {
           </span>
         </div>
 
-        <p className="text-gray-600 dark:text-gray-400 text-sm mb-6 line-clamp-2 leading-relaxed flex-grow">
-          {product.description}
+        <p className="mb-6 line-clamp-3 flex-grow text-sm leading-relaxed text-gray-600 dark:text-gray-400" title={descriptionText || undefined}>
+          {descriptionText}
         </p>
 
         <button

@@ -205,15 +205,15 @@ export default function Checkout() {
         >
           <CheckCircle className="w-12 h-12 text-primary" />
         </motion.div>
-        <h2 className="text-4xl font-extrabold text-foreground mb-4">Order Successful!</h2>
+        <h2 className="mb-4 text-3xl font-extrabold text-foreground sm:text-4xl">Order Successful!</h2>
         <p className="text-lg text-gray-500 dark:text-gray-400 max-w-md mx-auto mb-8">
           Thank you for your purchase. We'll send you a confirmation email with your order details and tracking information shortly.
         </p>
-        <div className="flex gap-4">
-          <Link href="/profile" className="bg-primary text-white px-8 py-3 rounded-xl font-bold hover:bg-primary-dark transition shadow-lg shadow-primary/20">
+        <div className="flex w-full max-w-md flex-col gap-3 sm:flex-row sm:justify-center sm:gap-4">
+          <Link href="/profile" className="bg-primary px-8 py-3 text-center font-bold text-white rounded-xl hover:bg-primary-dark transition shadow-lg shadow-primary/20">
             View Order
           </Link>
-          <Link href="/products" className="bg-card text-primary border border-primary/20 px-8 py-3 rounded-xl font-bold hover:bg-primary/5 transition">
+          <Link href="/products" className="bg-card text-center text-primary border border-primary/20 px-8 py-3 rounded-xl font-bold hover:bg-primary/5 transition">
             Continue Shopping
           </Link>
         </div>
@@ -226,7 +226,7 @@ export default function Checkout() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
       <Link href="/cart" className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-primary mb-8 transition">
         <ArrowLeft className="w-4 h-4 mr-2" /> Back to Cart
       </Link>
@@ -234,9 +234,9 @@ export default function Checkout() {
       <h1 className="text-3xl font-extrabold text-foreground mb-8">Checkout</h1>
       <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="afterInteractive" />
 
-      <div className="flex flex-col lg:flex-row gap-12">
+      <div className="flex min-w-0 flex-col gap-8 lg:flex-row lg:gap-12">
         <div className="flex-1">
-          <div className="bg-card rounded-lg p-6 md:p-8 shadow-sm border border-black/5 dark:border-white/10 mb-8">
+          <div className="mb-8 rounded-lg border border-black/5 bg-card p-5 shadow-sm dark:border-white/10 sm:p-6 md:p-8">
             <h2 className="text-xl font-bold text-foreground mb-6">Shipping Information</h2>
             <form id="checkout-form" onSubmit={handleCheckout} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -301,7 +301,7 @@ export default function Checkout() {
             </form>
           </div>
 
-          <div className="bg-card rounded-lg p-6 md:p-8 shadow-sm border border-black/5 dark:border-white/10">
+          <div className="rounded-lg border border-black/5 bg-card p-5 shadow-sm dark:border-white/10 sm:p-6 md:p-8">
             <h2 className="text-xl font-bold text-foreground mb-6 flex items-center">
               <CreditCard className="w-5 h-5 mr-2 text-primary" /> Payment
             </h2>
@@ -312,12 +312,12 @@ export default function Checkout() {
         </div>
 
         <div className="w-full lg:w-96 shrink-0">
-          <div className="bg-card rounded-lg p-6 shadow-sm border border-black/5 dark:border-white/10 sticky top-24">
+          <div className="rounded-lg border border-black/5 bg-card p-5 shadow-sm dark:border-white/10 sm:p-6 lg:sticky lg:top-24">
             <h2 className="text-xl font-bold text-foreground mb-6">Order Summary</h2>
             
             <div className="space-y-4 mb-6">
               {cart.map((item) => (
-                <div key={item.id} className="flex justify-between text-sm">
+                <div key={item.id} className="flex min-w-0 items-start justify-between gap-3 text-sm [&>span:first-child]:min-w-0 [&>span:first-child]:break-words [&>span:last-child]:shrink-0">
                   <span className="text-gray-600 dark:text-gray-400">{item.quantity} x {item.name}</span>
                   <span className="font-medium text-foreground">₹{(item.quantity * parseFloat(item.price)).toFixed(2)}</span>
                 </div>

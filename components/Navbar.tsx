@@ -6,13 +6,12 @@ import { usePathname } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { ShoppingCart, Heart, User, Menu, X, LogOut, Leaf } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 import ThemeToggle from './ThemeToggle';
 import ConfirmationModal from './ConfirmationModal';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
-  const { cart, cartCount } = useCart();
+  const { cartCount } = useCart();
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -36,6 +35,15 @@ export default function Navbar() {
     setIsProfileOpen(false);
   }, [pathname]);
 
+  useEffect(() => {
+    if (!isMobileMenuOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isMobileMenuOpen]);
+
   const isActive = (path: string) => pathname === path;
   const requestLogout = () => {
     setIsProfileOpen(false);
@@ -44,12 +52,12 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="fixed top-4 left-1/2 -translate-x-1/2 w-[95%] max-w-7xl z-50 transition-all duration-300">
-      <div className="glass rounded-lg shadow-premium px-4 sm:px-6 lg:px-8">
+    <nav className="fixed left-1/2 top-2 z-50 w-[calc(100%-1rem)] max-w-7xl -translate-x-1/2 transition-all duration-300 sm:top-4 sm:w-[95%]">
+      <div className="mobile-nav-shell glass rounded-lg px-3 shadow-premium sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center">
-            <Link href="/" className="text-2xl font-black text-primary-dark dark:text-primary tracking-tighter flex items-center group">
+            <Link href="/" className="group flex items-center text-xl font-black tracking-tighter text-primary-dark dark:text-primary sm:text-2xl">
               <span className="bg-primary text-white p-1 rounded-lg mr-2 group-hover:rotate-12 transition-transform duration-300">
                 <Leaf className="w-5 h-5" />
               </span>
@@ -113,14 +121,8 @@ export default function Navbar() {
                   </div>
                 </button>
 
-                <AnimatePresence>
-                  {isProfileOpen && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      className="absolute right-0 mt-3 w-56 glass rounded-lg shadow-premium py-2 border border-black/5 dark:border-white/10 overflow-hidden"
-                    >
+                {isProfileOpen && (
+                    <div className="menu-enter glass absolute right-0 mt-3 w-56 overflow-hidden rounded-lg border border-black/5 py-2 shadow-premium dark:border-white/10">
                       <div className="px-4 py-3 border-b border-black/5 dark:border-white/5">
                         <p className="text-sm font-bold text-foreground truncate">{user.name}</p>
                         <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user.email}</p>
@@ -138,9 +140,8 @@ export default function Navbar() {
                           <LogOut className="w-4 h-4 mr-3" /> Logout
                         </button>
                       </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                    </div>
+                )}
               </div>
             ) : (
               <Link href="/login" className="bg-primary hover:bg-primary-dark text-white px-5 py-2 rounded-xl text-sm font-bold transition-all duration-300 shadow-sm hover:shadow-md">
@@ -155,6 +156,8 @@ export default function Navbar() {
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="p-2 text-foreground hover:text-primary transition-colors focus:outline-none"
+              aria-label={isMobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+              aria-expanded={isMobileMenuOpen}
             >
               {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -163,15 +166,9 @@ export default function Navbar() {
       </div>
 
       {/* Mobile Menu */}
-      <AnimatePresence>
         {isMobileMenuOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0, y: -20 }}
-            animate={{ height: 'auto', opacity: 1, y: 0 }}
-            exit={{ height: 0, opacity: 0, y: -20 }}
-            className="lg:hidden overflow-hidden mt-2"
-          >
-            <div className="glass rounded-lg shadow-premium p-4 space-y-2">
+          <div className="menu-enter mt-2 max-h-[calc(100dvh-5.5rem)] overflow-y-auto lg:hidden">
+            <div className="mobile-menu-solid space-y-2 rounded-lg border border-white/10 p-4 opacity-100 shadow-premium">
               <Link
                 href="/"
                 className={`block px-4 py-3 rounded-xl text-base font-black transition-all ${isActive('/') ? 'bg-primary text-white shadow-lg' : 'text-foreground hover:text-primary hover:bg-primary/10'}`}
@@ -218,9 +215,8 @@ export default function Navbar() {
                 <Link href="/login" className="block px-4 py-3 rounded-xl text-base font-bold bg-primary text-white text-center shadow-sm">Login</Link>
               )}
             </div>
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
       <ConfirmationModal
         isOpen={logoutOpen}
         onClose={() => setLogoutOpen(false)}

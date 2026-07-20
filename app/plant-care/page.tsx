@@ -35,11 +35,11 @@ const quickChecks = [
 export default function PlantCarePage() {
   return (
     <main className="bg-background">
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
+      <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-24">
         <div className="grid lg:grid-cols-[1.05fr_0.95fr] gap-10 items-center">
           <Reveal>
             <p className="text-xs font-black uppercase tracking-[0.22em] text-primary mb-4">Plant Care Guide</p>
-            <h1 className="text-4xl md:text-6xl font-black tracking-tight text-foreground mb-6">
+            <h1 className="mb-6 text-3xl font-black tracking-tight text-foreground sm:text-4xl md:text-6xl">
               Keep every plant looking store-fresh.
             </h1>
             <p className="text-lg text-gray-600 dark:text-gray-400 leading-relaxed mb-8 max-w-2xl">

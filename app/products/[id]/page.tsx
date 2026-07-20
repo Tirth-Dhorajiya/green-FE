@@ -14,12 +14,23 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { ProductDetailsSkeleton, SkeletonBlock } from '../../../components/Skeletons';
 import ConfirmationModal from '../../../components/ConfirmationModal';
+import {
+  ReviewImagePicker,
+  ReviewPhotoGallery,
+  ReviewPhotoLightbox,
+  type ReviewPhoto,
+} from '../../../components/reviews/ReviewPhotos';
 
 interface ProductImage {
   url: string;
   is_default: boolean;
   is_thumbnail: boolean;
 }
+
+const policyWindowLabel = (hours: number) => {
+  if (hours % 24 === 0) return `${hours / 24} day${hours === 24 ? '' : 's'}`;
+  return `${hours} hour${hours === 1 ? '' : 's'}`;
+};
 
 export default function ProductDetails() {
   const { id } = useParams();
@@ -31,12 +42,17 @@ export default function ProductDetails() {
   const [reviews, setReviews] = useState<any[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(true);
   const [reviewSummary, setReviewSummary] = useState({ average_rating: 0, review_count: 0 });
+  const [reviewPage, setReviewPage] = useState(1);
+  const [reviewTotalPages, setReviewTotalPages] = useState(1);
   const [reviewForm, setReviewForm] = useState({ rating: 5, comment: '' });
+  const [reviewFiles, setReviewFiles] = useState<File[]>([]);
+  const [openReviewPhoto, setOpenReviewPhoto] = useState<{ photo: ReviewPhoto; reviewer: string } | null>(null);
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
+  const [canReview, setCanReview] = useState(false);
   const [confirmWishlistRemove, setConfirmWishlistRemove] = useState(false);
   const { addToCart } = useCart();
   const { isWishlisted, toggleWishlist } = useWishlist();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -58,24 +74,43 @@ export default function ProductDetails() {
     if (id) fetchProduct();
   }, [id, productId]);
 
-  const fetchReviews = async () => {
+  const fetchReviews = React.useCallback(async (page: number) => {
     try {
       setReviewsLoading(true);
-      const res = await api.get(endpoints.products.reviews(productId));
+      const res = await api.get(endpoints.products.reviews(productId), { params: { page, limit: 10 } });
       if (res.data.success) {
         setReviews(res.data.reviews || []);
         setReviewSummary(res.data.summary || { average_rating: 0, review_count: 0 });
+        setReviewTotalPages(Math.max(1, Number(res.data.totalPages || 1)));
       }
     } catch {
       console.error('Failed to load reviews');
     } finally {
       setReviewsLoading(false);
     }
-  };
+  }, [productId]);
 
   useEffect(() => {
-    if (id) fetchReviews();
-  }, [id, productId]);
+    if (id) fetchReviews(reviewPage);
+  }, [id, reviewPage, fetchReviews]);
+
+  const fetchReviewEligibility = React.useCallback(async () => {
+    if (!user) {
+      setCanReview(false);
+      return;
+    }
+
+    try {
+      const res = await api.get(endpoints.products.reviewEligibility(productId));
+      setCanReview(res.data.success && res.data.can_review === true);
+    } catch {
+      setCanReview(false);
+    }
+  }, [productId, user]);
+
+  useEffect(() => {
+    if (!authLoading) fetchReviewEligibility();
+  }, [authLoading, fetchReviewEligibility]);
 
   const submitReview = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -86,11 +121,19 @@ export default function ProductDetails() {
 
     try {
       setReviewSubmitting(true);
-      const res = await api.post(endpoints.products.reviews(productId), reviewForm);
+      const formData = new FormData();
+      formData.append('rating', String(reviewForm.rating));
+      formData.append('comment', reviewForm.comment);
+      reviewFiles.forEach((file) => formData.append('images', file));
+      const res = await api.post(endpoints.products.reviews(productId), formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
       if (res.data.success) {
         toast.success('Review submitted');
         setReviewForm({ rating: 5, comment: '' });
-        fetchReviews();
+        setReviewFiles([]);
+        setReviewPage(1);
+        await Promise.all([fetchReviews(1), fetchReviewEligibility()]);
       }
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Unable to submit review');
@@ -117,7 +160,7 @@ export default function ProductDetails() {
     } else if (product.image_url) {
       rawImages = [{ url: product.image_url, is_default: true, is_thumbnail: true }];
     }
-  } catch (e) {
+  } catch {
     if (product.image_url) {
       rawImages = [{ url: product.image_url, is_default: true, is_thumbnail: true }];
     }
@@ -140,13 +183,23 @@ export default function ProductDetails() {
     toggleWishlist(product);
   };
 
+  const policyHours = Number(product.return_window_hours || (product.category === 'plants' ? 48 : 168));
+  const policyWindow = policyWindowLabel(policyHours);
+  const description = String(product.description || '');
+  const hasFormattedDescription = /<\/?[a-z][\s\S]*>/i.test(description);
+  const returnFeature = product.final_sale
+    ? { title: 'Final Sale', sub: 'Damage, missing or wrong-item claims only' }
+    : product.return_policy === 'damage_only'
+      ? { title: 'Damage Protection', sub: `Eligible claims within ${policyWindow}` }
+      : { title: 'Easy Returns', sub: `Eligible returns within ${policyWindow}` };
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
       <Link href="/products" className="inline-flex items-center text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-primary mb-8 transition">
         <ArrowLeft className="w-4 h-4 mr-2" /> Back to Shop
       </Link>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
+      <div className="grid min-w-0 grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-20">
         {/* ── Gallery ── */}
         <div className="flex flex-col gap-4">
           {/* Main image */}
@@ -173,10 +226,10 @@ export default function ProductDetails() {
 
             {gallery.length > 1 && (
               <>
-                <button onClick={prev} className="absolute left-4 top-1/2 -translate-y-1/2 cursor-pointer p-2 bg-white/90 dark:bg-black/70 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition hover:bg-primary hover:text-white">
+                <button onClick={prev} className="absolute left-3 top-1/2 -translate-y-1/2 cursor-pointer rounded-full bg-white/90 p-2 opacity-100 shadow-lg transition hover:bg-primary hover:text-white dark:bg-black/70 md:left-4 md:opacity-0 md:group-hover:opacity-100">
                   <ChevronLeft className="w-5 h-5" />
                 </button>
-                <button onClick={next} className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer p-2 bg-white/90 dark:bg-black/70 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition hover:bg-primary hover:text-white">
+                <button onClick={next} className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer rounded-full bg-white/90 p-2 opacity-100 shadow-lg transition hover:bg-primary hover:text-white dark:bg-black/70 md:right-4 md:opacity-0 md:group-hover:opacity-100">
                   <ChevronRight className="w-5 h-5" />
                 </button>
               </>
@@ -214,12 +267,14 @@ export default function ProductDetails() {
                 <span className="bg-red-100 dark:bg-red-900/30 text-red-600 text-xs px-3 py-1 rounded-full font-bold">Out of Stock</span>
               )}
             </div>
-            <h1 className="text-4xl md:text-5xl font-extrabold text-foreground mb-4 tracking-tight">{product.name}</h1>
+            <h1 className="mb-4 break-words text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl md:text-5xl">{product.name}</h1>
             <p className="text-3xl font-bold text-foreground">₹{parseFloat(product.price).toFixed(2)}</p>
           </div>
 
-          <div className="prose prose-green dark:prose-invert max-w-none text-gray-700 dark:text-gray-400 mb-8">
-            <p>{product.description}</p>
+          <div className="mb-8 max-w-none text-gray-700 dark:text-gray-300 [&_a]:font-bold [&_a]:text-primary [&_a]:underline [&_blockquote]:my-5 [&_blockquote]:border-l-4 [&_blockquote]:border-primary/30 [&_blockquote]:pl-4 [&_h2]:mb-3 [&_h2]:mt-6 [&_h2]:text-2xl [&_h2]:font-black [&_h2]:text-foreground [&_h3]:mb-2 [&_h3]:mt-5 [&_h3]:text-xl [&_h3]:font-black [&_li]:my-1.5 [&_ol]:my-4 [&_ol]:list-decimal [&_ol]:pl-6 [&_p]:my-4 [&_p]:leading-7 [&_ul]:my-4 [&_ul]:list-disc [&_ul]:pl-6">
+            {hasFormattedDescription
+              ? <div dangerouslySetInnerHTML={{ __html: description }} />
+              : <p>{description}</p>}
           </div>
 
           <div className="mt-auto space-y-6">
@@ -252,7 +307,7 @@ export default function ProductDetails() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-8 border-t border-black/5 dark:border-white/10">
               {[
                 { icon: Truck, title: 'Free Shipping', sub: 'On orders over ₹50' },
-                { icon: RotateCcw, title: 'Easy Returns', sub: '30 days return policy' },
+                { icon: RotateCcw, title: returnFeature.title, sub: returnFeature.sub },
                 { icon: ShieldCheck, title: 'Secure Payment', sub: '100% secure checkout' },
               ].map(({ icon: Icon, title, sub }) => (
                 <div key={title} className="flex items-start">
@@ -278,7 +333,7 @@ export default function ProductDetails() {
             </p>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-8">{reviewSummary.review_count} verified review{reviewSummary.review_count === 1 ? '' : 's'}</p>
 
-            <form onSubmit={submitReview} className="bg-card rounded-lg border border-black/5 dark:border-white/10 p-5 space-y-4">
+            {canReview && <form onSubmit={submitReview} className="space-y-4 rounded-lg border border-black/5 bg-card p-4 dark:border-white/10 sm:p-5">
               <div>
                 <label className="block text-xs font-black uppercase tracking-widest text-gray-600 dark:text-gray-400 mb-2">Rating</label>
                 <select
@@ -302,6 +357,7 @@ export default function ProductDetails() {
                   placeholder="Share your plant care and product experience"
                 />
               </div>
+              <ReviewImagePicker files={reviewFiles} onChange={setReviewFiles} disabled={reviewSubmitting} />
               <button
                 type="submit"
                 disabled={reviewSubmitting}
@@ -309,7 +365,7 @@ export default function ProductDetails() {
               >
                 {reviewSubmitting ? 'Submitting...' : 'Submit Verified Review'}
               </button>
-            </form>
+            </form>}
           </div>
 
           <div className="space-y-4">
@@ -318,7 +374,7 @@ export default function ProductDetails() {
                 {[1, 2, 3].map((item) => <SkeletonBlock key={item} className="h-32 w-full" />)}
               </div>
             ) : reviews.length > 0 ? reviews.map((review) => (
-              <article key={review.id} className="bg-card rounded-lg border border-black/5 dark:border-white/10 p-6">
+              <article key={review.id} className="rounded-lg border border-black/5 bg-card p-4 dark:border-white/10 sm:p-6">
                 <div className="flex items-start justify-between gap-4 mb-3">
                   <div>
                     <h3 className="font-black text-foreground">{review.user_name}</h3>
@@ -327,11 +383,47 @@ export default function ProductDetails() {
                   <span className="rounded-full bg-primary/10 text-primary px-3 py-1 text-xs font-black">{review.rating}/5</span>
                 </div>
                 <p className="text-gray-700 dark:text-gray-400 leading-relaxed">{review.comment || 'No written comment.'}</p>
+                <ReviewPhotoGallery
+                  images={review.images}
+                  reviewer={review.user_name}
+                  onOpen={(photo) => setOpenReviewPhoto({ photo, reviewer: review.user_name })}
+                />
               </article>
             )) : (
               <div className="bg-card rounded-lg border border-black/5 dark:border-white/10 p-10 text-center text-gray-600 dark:text-gray-400">
                 No reviews yet.
               </div>
+            )}
+            {!reviewsLoading && reviewTotalPages > 1 && (
+              <nav className="flex flex-wrap items-center justify-center gap-2 pt-4" aria-label="Customer review pages">
+                <button
+                  type="button"
+                  onClick={() => setReviewPage((page) => Math.max(1, page - 1))}
+                  disabled={reviewPage === 1}
+                  className="inline-flex h-10 cursor-pointer items-center gap-1 rounded-lg border border-black/10 bg-card px-3 text-sm font-bold text-foreground transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/10"
+                >
+                  <ChevronLeft className="h-4 w-4" /> Previous
+                </button>
+                {Array.from({ length: reviewTotalPages }, (_, index) => index + 1).map((page) => (
+                  <button
+                    type="button"
+                    key={page}
+                    onClick={() => setReviewPage(page)}
+                    aria-current={reviewPage === page ? 'page' : undefined}
+                    className={`h-10 min-w-10 cursor-pointer rounded-lg px-3 text-sm font-black transition ${reviewPage === page ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'border border-black/10 bg-card text-foreground hover:border-primary hover:text-primary dark:border-white/10'}`}
+                  >
+                    {page}
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setReviewPage((page) => Math.min(reviewTotalPages, page + 1))}
+                  disabled={reviewPage === reviewTotalPages}
+                  className="inline-flex h-10 cursor-pointer items-center gap-1 rounded-lg border border-black/10 bg-card px-3 text-sm font-bold text-foreground transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/10"
+                >
+                  Next <ChevronRight className="h-4 w-4" />
+                </button>
+              </nav>
             )}
           </div>
         </div>
@@ -345,6 +437,11 @@ export default function ProductDetails() {
         message={`Remove "${product.name}" from your wishlist?`}
         confirmText="Remove"
         variant="danger"
+      />
+      <ReviewPhotoLightbox
+        photo={openReviewPhoto?.photo || null}
+        reviewer={openReviewPhoto?.reviewer || ''}
+        onClose={() => setOpenReviewPhoto(null)}
       />
     </div>
   );

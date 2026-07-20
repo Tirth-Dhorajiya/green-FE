@@ -65,8 +65,8 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-20 px-4 sm:px-6 lg:px-8 bg-premium-gradient">
-      <div className="max-w-md w-full glass rounded-xl p-10 shadow-premium border border-black/5 dark:border-white/10">
+    <div className="flex min-h-[calc(100svh-5rem)] items-center justify-center bg-premium-gradient px-4 py-10 sm:px-6 sm:py-16 lg:px-8">
+      <div className="glass w-full max-w-md rounded-xl border border-black/5 p-6 shadow-premium dark:border-white/10 sm:p-10">
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center space-x-2 bg-primary/15 text-primary px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest mb-6 border border-primary/20">
             <Leaf className="w-4 h-4" />
@@ -89,7 +89,7 @@ export default function ForgotPasswordPage() {
           <form onSubmit={verifyOtp} className="space-y-5">
             <p className="text-sm text-gray-600 dark:text-gray-400">OTP sent to <span className="font-bold text-foreground">{email}</span>.</p>
             {devOtp && <p className="text-sm text-primary font-bold">Development OTP: {devOtp}</p>}
-            <input value={otp} onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))} className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 px-5 py-4 rounded-lg text-center text-2xl tracking-[0.4em] font-black outline-none focus:ring-2 focus:ring-primary/20 text-foreground placeholder:text-gray-500" placeholder="000000" />
+            <input value={otp} onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))} className="w-full rounded-lg border border-black/5 bg-black/5 px-3 py-4 text-center text-xl font-black tracking-[0.28em] text-foreground outline-none placeholder:text-gray-500 focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-white/5 sm:px-5 sm:text-2xl sm:tracking-[0.4em]" placeholder="000000" />
             <button disabled={isSubmitting || otp.length !== 6} className="w-full py-4 rounded-lg bg-primary text-white font-black hover:bg-primary-dark disabled:opacity-50">
               {isSubmitting ? 'Verifying...' : 'Verify OTP'}
             </button>

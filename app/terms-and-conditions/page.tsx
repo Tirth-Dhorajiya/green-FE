@@ -52,9 +52,9 @@ const termsSections = [
 export default function TermsAndConditionsPage() {
   return (
     <main className="bg-background">
-      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
+      <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-24">
         <p className="text-xs font-black uppercase tracking-[0.22em] text-primary mb-4">Legal / Terms</p>
-        <h1 className="text-4xl md:text-6xl font-black tracking-tight text-foreground mb-6">Terms & Conditions</h1>
+        <h1 className="mb-6 text-3xl font-black tracking-tight text-foreground sm:text-4xl md:text-6xl">Terms & Conditions</h1>
         <p className="text-lg text-gray-600 dark:text-gray-400 leading-relaxed max-w-3xl">
           These terms apply when you browse Green Store, create an account, place an order, submit reviews, or use customer support features.
         </p>
@@ -84,7 +84,7 @@ export default function TermsAndConditionsPage() {
           <h2 className="text-xl font-black text-foreground mb-3">Questions about these terms?</h2>
           <p className="text-gray-700 dark:text-gray-400 leading-relaxed">
             Contact support at{' '}
-            <a href="mailto:support@greenstore.com" className="font-black text-primary hover:underline">
+            <a href="mailto:support@greenstore.com" className="break-all font-black text-primary hover:underline">
               support@greenstore.com
             </a>
             .

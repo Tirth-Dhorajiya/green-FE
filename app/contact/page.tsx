@@ -51,11 +51,11 @@ export default function ContactPage() {
 
   return (
     <main className="bg-background">
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
+      <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-24">
         <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-10">
           <Reveal>
             <p className="text-xs font-black uppercase tracking-[0.22em] text-primary mb-4">Contact / Support</p>
-            <h1 className="text-4xl md:text-6xl font-black tracking-tight text-foreground mb-6">
+            <h1 className="mb-6 text-3xl font-black tracking-tight text-foreground sm:text-4xl md:text-6xl">
               We are here for orders and plant care.
             </h1>
             <p className="text-lg text-gray-600 dark:text-gray-400 leading-relaxed mb-8">
@@ -67,7 +67,7 @@ export default function ContactPage() {
                 <Mail className="w-6 h-6 text-primary shrink-0" />
                 <div>
                   <h2 className="font-black text-foreground">Email</h2>
-                  <a href="mailto:support@greenstore.com" className="text-gray-600 dark:text-gray-400 hover:text-primary">support@greenstore.com</a>
+                  <a href="mailto:support@greenstore.com" className="break-all text-gray-600 hover:text-primary dark:text-gray-400">support@greenstore.com</a>
                 </div>
               </div>
               <div className="motion-surface flex gap-4 rounded-xl bg-card border border-black/5 dark:border-white/10 p-5">
@@ -87,7 +87,7 @@ export default function ContactPage() {
             </div>
           </Reveal>
 
-          <Reveal delay={0.1} className="motion-surface bg-card rounded-xl border border-black/5 dark:border-white/10 shadow-sm p-6 md:p-8">
+          <Reveal delay={0.1} className="motion-surface rounded-xl border border-black/5 bg-card p-5 shadow-sm dark:border-white/10 sm:p-6 md:p-8">
             <h2 className="text-2xl font-black text-foreground mb-6">Send a message</h2>
             <form className="space-y-4" onSubmit={submitContact}>
               <div className="grid sm:grid-cols-2 gap-4">

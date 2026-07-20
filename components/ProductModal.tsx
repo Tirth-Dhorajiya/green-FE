@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { X, Upload, Loader2, Star, Image as ImageIcon, Trash2, Check } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
+import { X, Upload, Loader2, Star, Image as ImageIcon, Trash2 } from 'lucide-react';
 import api, { BASE_URL } from '../services/api';
 import { endpoints } from '../services/apiConfig';
 import toast from 'react-hot-toast';
@@ -193,8 +194,8 @@ export default function ProductModal({ isOpen, onClose, onSuccess, product }: Pr
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
-      <div className="bg-card rounded-xl w-full max-w-4xl shadow-2xl border border-black/5 dark:border-white/10 overflow-hidden">
+    <div className="fixed inset-0 z-[100] flex items-end justify-center bg-black/70 p-0 backdrop-blur-md sm:items-center sm:p-4">
+      <div className="max-h-[96dvh] w-full max-w-4xl overflow-hidden rounded-t-2xl border border-black/5 bg-card shadow-2xl dark:border-white/10 sm:max-h-[92dvh] sm:rounded-xl">
         {/* Header */}
         <div className="flex items-center justify-between gap-4 px-5 sm:px-10 py-5 sm:py-7 border-b border-black/5 dark:border-white/10">
           <div>
@@ -207,7 +208,7 @@ export default function ProductModal({ isOpen, onClose, onSuccess, product }: Pr
         </div>
 
         {/* Body */}
-        <form onSubmit={handleSubmit} className="overflow-y-auto max-h-[80vh] custom-scrollbar">
+        <form onSubmit={handleSubmit} className="custom-scrollbar max-h-[calc(96dvh-5.5rem)] overflow-y-auto sm:max-h-[calc(92dvh-6rem)]">
           <div className="p-5 sm:p-10 space-y-8 sm:space-y-10">
 
             {/* ── Image Upload Zone ── */}
@@ -232,7 +233,7 @@ export default function ProductModal({ isOpen, onClose, onSuccess, product }: Pr
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4">
                   {images.map(img => (
                     <div key={img.id} className="relative group aspect-square rounded-lg overflow-hidden border-2 border-transparent hover:border-primary/30 transition-all">
-                      <img src={img.url} alt="preview" className="w-full h-full object-cover" />
+                      <Image src={img.url} alt="Product preview" fill unoptimized sizes="(max-width: 640px) 50vw, 20vw" className="h-full w-full object-cover" />
 
                       {/* Badges */}
                       <div className="absolute top-2 left-2 flex flex-col gap-1">
@@ -249,7 +250,7 @@ export default function ProductModal({ isOpen, onClose, onSuccess, product }: Pr
                       </div>
 
                       {/* Action overlay */}
-                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 p-2">
+                      <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/60 p-2 opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100">
                         <button type="button" onClick={() => setDefault(img.id)}
                           className={`w-full flex items-center justify-center gap-1 py-1 rounded-lg text-[10px] font-black transition ${img.is_default ? 'bg-primary text-white' : 'bg-white/20 text-white hover:bg-primary'}`}>
                           <Star className="w-3 h-3" /> Set Default

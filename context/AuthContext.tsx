@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useCallback, useContext, useState, useEffect, ReactNode } from 'react';
 import api from '../services/api';
 import { endpoints } from '../services/apiConfig';
 import toast from 'react-hot-toast';
@@ -41,21 +41,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  useEffect(() => {
-    const storedToken = localStorage.getItem('token');
-    if (storedToken) {
-      setToken(storedToken);
-      checkAuth(storedToken);
-    } else {
-      setLoading(false);
-    }
-  }, []);
+  const logout = useCallback(() => {
+    localStorage.removeItem('token');
+    setToken(null);
+    setUser(null);
+    router.push('/login');
+    toast.success('Logged out successfully!');
+  }, [router]);
 
-  const checkAuth = async (currentToken?: string) => {
+  const checkAuth = useCallback(async () => {
     try {
       setLoading(true);
-      // Let interceptor handle the token if already set in localStorage, 
-      // but if we are passing it directly, we might need it.
       const res = await api.get(endpoints.auth.me);
       if (res.data.success) {
         setUser(res.data.user);
@@ -68,21 +64,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [logout]);
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem('token');
+    if (storedToken) {
+      setToken(storedToken);
+      checkAuth();
+    } else {
+      setLoading(false);
+    }
+  }, [checkAuth]);
 
   const login = (newToken: string, userData: User) => {
     localStorage.setItem('token', newToken);
     setToken(newToken);
     setUser(userData);
     toast.success('Logged in successfully!');
-  };
-
-  const logout = () => {
-    localStorage.removeItem('token');
-    setToken(null);
-    setUser(null);
-    router.push('/login');
-    toast.success('Logged out successfully!');
   };
 
   return (

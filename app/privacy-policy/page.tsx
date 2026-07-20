@@ -45,9 +45,9 @@ const privacySections = [
 export default function PrivacyPolicyPage() {
   return (
     <main className="bg-background">
-      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
+      <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-24">
         <p className="text-xs font-black uppercase tracking-[0.22em] text-primary mb-4">Legal / Privacy</p>
-        <h1 className="text-4xl md:text-6xl font-black tracking-tight text-foreground mb-6">Privacy Policy</h1>
+        <h1 className="mb-6 text-3xl font-black tracking-tight text-foreground sm:text-4xl md:text-6xl">Privacy Policy</h1>
         <p className="text-lg text-gray-600 dark:text-gray-400 leading-relaxed max-w-3xl">
           This policy explains how Green Store collects, uses, protects, and shares customer information when you use our website, create an account, place orders, or contact support.
         </p>
@@ -77,7 +77,7 @@ export default function PrivacyPolicyPage() {
           <h2 className="text-xl font-black text-foreground mb-3">Contact</h2>
           <p className="text-gray-700 dark:text-gray-400 leading-relaxed">
             For privacy questions, account updates, or data requests, contact us at{' '}
-            <a href="mailto:support@greenstore.com" className="font-black text-primary hover:underline">
+            <a href="mailto:support@greenstore.com" className="break-all font-black text-primary hover:underline">
               support@greenstore.com
             </a>
             .

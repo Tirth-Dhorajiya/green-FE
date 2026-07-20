@@ -41,23 +41,23 @@ const socialLinks = [
 
 export default function Footer() {
   return (
-    <footer className="bg-card text-foreground dark:bg-slate-950 dark:text-white pt-24 pb-12 overflow-hidden relative border-t border-black/5 dark:border-white/5">
+    <footer className="relative overflow-hidden border-t border-black/5 bg-card pb-6 pt-10 text-foreground dark:border-white/5 dark:bg-slate-950 dark:text-white sm:pb-10 sm:pt-20 lg:pt-24">
       <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-black/10 to-transparent dark:via-white/10" />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-16 mb-20">
-          <div className="md:col-span-4">
-            <Link href="/" className="mb-8 inline-flex items-center group" aria-label="Green Store home">
-              <span className="bg-primary text-white p-3 rounded-lg group-hover:rotate-12 transition-transform duration-300 shadow-lg shadow-primary/20">
-                <Leaf className="w-7 h-7" />
+        <div className="mb-10 grid grid-cols-2 gap-x-6 gap-y-8 sm:mb-14 sm:grid-cols-2 sm:gap-10 md:mb-20 md:grid-cols-12 md:gap-8 lg:gap-16">
+          <div className="col-span-2 md:col-span-4">
+            <Link href="/" className="group mb-4 inline-flex items-center sm:mb-8" aria-label="Green Store home">
+              <span className="rounded-lg bg-primary p-2.5 text-white shadow-lg shadow-primary/20 transition-transform duration-300 group-hover:rotate-12 sm:p-3">
+                <Leaf className="h-6 w-6 sm:h-7 sm:w-7" />
               </span>
             </Link>
-            <p className="text-gray-600 dark:text-gray-400 text-lg leading-relaxed mb-10">
+            <p className="mb-6 max-w-md text-sm leading-relaxed text-gray-600 dark:text-gray-400 sm:mb-10 sm:text-lg">
               Cultivating beautiful living spaces through premium botanical collections since 2024.
             </p>
-            <div className="flex space-x-4">
+            <div className="flex gap-2.5 sm:gap-4">
               {socialLinks.map(({ label, icon }) => (
-                <a key={label} href="#" aria-label={label} className="w-12 h-12 bg-black/5 dark:bg-white/5 rounded-lg flex items-center justify-center hover:-translate-y-1 hover:bg-primary hover:text-white transition-all border border-black/10 dark:border-white/10 hover:border-primary hover:shadow-lg hover:shadow-primary/20">
+                <a key={label} href="#" aria-label={label} className="flex h-10 w-10 items-center justify-center rounded-lg border border-black/10 bg-black/5 transition-all hover:-translate-y-1 hover:border-primary hover:bg-primary hover:text-white hover:shadow-lg hover:shadow-primary/20 dark:border-white/10 dark:bg-white/5 sm:h-12 sm:w-12">
                   {icon}
                 </a>
               ))}
@@ -65,8 +65,8 @@ export default function Footer() {
           </div>
 
           <div className="md:col-span-2">
-            <h4 className="text-foreground dark:text-white font-black uppercase tracking-widest text-xs mb-8">Shop</h4>
-            <ul className="space-y-4">
+            <h4 className="mb-4 text-xs font-black uppercase tracking-widest text-foreground dark:text-white sm:mb-8">Shop</h4>
+            <ul className="space-y-3 sm:space-y-4">
               <li><Link href="/products?category=plants" className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-white transition-colors font-medium">Plants</Link></li>
               <li><Link href="/products?category=seeds" className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-white transition-colors font-medium">Seeds</Link></li>
               <li><Link href="/products?category=tools" className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-white transition-colors font-medium">Tools</Link></li>
@@ -74,8 +74,8 @@ export default function Footer() {
           </div>
 
           <div className="md:col-span-2">
-            <h4 className="text-foreground dark:text-white font-black uppercase tracking-widest text-xs mb-8">Company</h4>
-            <ul className="space-y-4">
+            <h4 className="mb-4 text-xs font-black uppercase tracking-widest text-foreground dark:text-white sm:mb-8">Company</h4>
+            <ul className="space-y-3 sm:space-y-4">
               <li><Link href="/plant-care" className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-white transition-colors font-medium">Plant Care</Link></li>
               <li><Link href="/faq" className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-white transition-colors font-medium">FAQ</Link></li>
               <li><Link href="/contact" className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-white transition-colors font-medium">Contact</Link></li>
@@ -83,25 +83,25 @@ export default function Footer() {
             </ul>
           </div>
 
-          <div className="md:col-span-4">
-            <h4 className="text-foreground dark:text-white font-black uppercase tracking-widest text-xs mb-8">Newsletter</h4>
-            <p className="text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">Join 10k+ plant lovers and get exclusive tips and deals.</p>
+          <div className="col-span-2 md:col-span-4">
+            <h4 className="mb-4 text-xs font-black uppercase tracking-widest text-foreground dark:text-white sm:mb-8">Newsletter</h4>
+            <p className="mb-4 text-sm leading-relaxed text-gray-600 dark:text-gray-400 sm:mb-8 sm:text-base">Join 10k+ plant lovers and get exclusive tips and deals.</p>
             <div className="flex flex-col sm:flex-row gap-3">
               <input 
                 type="email" 
                 placeholder="Enter your email" 
-                className="min-w-0 flex-1 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-foreground dark:text-white placeholder:text-gray-500 px-6 py-4 rounded-lg focus:outline-none focus:border-primary transition-all"
+                className="min-w-0 flex-1 rounded-lg border border-black/10 bg-black/5 px-4 py-3.5 text-sm text-foreground placeholder:text-gray-500 transition-all focus:border-primary focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-white sm:px-6 sm:py-4 sm:text-base"
               />
-              <button className="bg-primary hover:bg-primary-dark px-6 py-4 rounded-lg text-sm font-black transition-all shadow-lg hover:shadow-primary/30">
+              <button className="rounded-lg bg-primary px-6 py-3.5 text-sm font-black shadow-lg transition-all hover:bg-primary-dark hover:shadow-primary/30 sm:py-4">
                 JOIN
               </button>
             </div>
           </div>
         </div>
 
-        <div className="pt-12 border-t border-black/5 dark:border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
+        <div className="flex flex-col items-center justify-between gap-4 border-t border-black/5 pt-6 text-center dark:border-white/5 sm:pt-10 md:flex-row md:text-left">
           <p className="text-gray-600 dark:text-gray-500 text-sm font-medium">&copy; {new Date().getFullYear()} Green Store. Crafted with passion.</p>
-          <div className="flex space-x-8 text-gray-600 dark:text-gray-500 text-sm font-medium">
+          <div className="flex flex-wrap justify-center gap-x-8 gap-y-3 text-sm font-medium text-gray-600 dark:text-gray-500">
             <Link href="/terms-and-conditions" className="hover:text-primary dark:hover:text-white transition-colors">Terms</Link>
             <Link href="/privacy-policy" className="hover:text-primary dark:hover:text-white transition-colors">Privacy</Link>
           </div>

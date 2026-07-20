@@ -78,13 +78,24 @@ const faqGroups = [
 ];
 
 export default function FaqPage() {
+  const faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqGroups.flatMap((group) => group.items.map((item) => ({
+      '@type': 'Question',
+      name: item.question,
+      acceptedAnswer: { '@type': 'Answer', text: item.answer },
+    }))),
+  };
+
   return (
     <main className="bg-background">
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema).replace(/</g, '\\u003c') }} />
+      <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-24">
         <p className="text-xs font-black uppercase tracking-[0.22em] text-primary mb-4">Support / FAQ</p>
         <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-10 items-start">
           <Reveal>
-            <h1 className="text-4xl md:text-6xl font-black tracking-tight text-foreground mb-6">
+            <h1 className="mb-6 text-3xl font-black tracking-tight text-foreground sm:text-4xl md:text-6xl">
               Answers before you order.
             </h1>
             <p className="text-lg text-gray-600 dark:text-gray-400 leading-relaxed mb-8">
@@ -109,7 +120,7 @@ export default function FaqPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 grid md:grid-cols-2 gap-6">
           {faqGroups.map(({ title, icon: Icon, items }, index) => (
             <Reveal key={title} delay={index * 0.07} className="h-full">
-            <article className="motion-surface h-full bg-card rounded-xl border border-black/5 dark:border-white/10 p-6 md:p-8 shadow-sm">
+            <article className="motion-surface h-full rounded-xl border border-black/5 bg-card p-5 shadow-sm dark:border-white/10 sm:p-6 md:p-8">
               <div className="flex items-center gap-3 mb-6">
                 <div className="motion-icon w-11 h-11 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
                   <Icon className="w-6 h-6" />

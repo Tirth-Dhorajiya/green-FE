@@ -86,12 +86,12 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-160px)] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-background transition-colors">
+    <div className="flex min-h-[calc(100svh-5rem)] items-center justify-center bg-background px-4 py-10 transition-colors sm:px-6 sm:py-12 lg:px-8">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.4 }}
-        className="max-w-md w-full space-y-8 bg-card p-10 rounded-xl shadow-xl border border-black/5 dark:border-white/10"
+        className="w-full max-w-md space-y-8 rounded-xl border border-black/5 bg-card p-6 shadow-xl dark:border-white/10 sm:p-10"
       >
         <div className="text-center">
           <div className="w-16 h-16 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-4">
@@ -128,7 +128,7 @@ export default function Register() {
               Enter the 6-digit OTP sent to <span className="font-bold text-foreground">{email}</span>.
               {devOtp && <p className="mt-2 text-primary font-bold">Development OTP: {devOtp}</p>}
             </div>
-            <input value={otp} onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))} className="block w-full px-4 py-3 border border-black/10 dark:border-white/10 text-center text-2xl tracking-[0.4em] font-black text-foreground bg-black/5 dark:bg-white/5 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition" placeholder="000000" />
+            <input value={otp} onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))} className="block w-full rounded-lg border border-black/10 bg-black/5 px-3 py-3 text-center text-xl font-black tracking-[0.28em] text-foreground transition focus:outline-none focus:ring-2 focus:ring-primary dark:border-white/10 dark:bg-white/5 sm:px-4 sm:text-2xl sm:tracking-[0.4em]" placeholder="000000" />
             <button type="submit" disabled={isSubmitting || otp.length !== 6} className="w-full py-3.5 px-4 text-sm font-black rounded-lg text-white bg-primary hover:bg-primary-dark transition shadow-lg shadow-primary/20 disabled:opacity-50">
               {isSubmitting ? 'Verifying...' : 'Verify Email'}
             </button>

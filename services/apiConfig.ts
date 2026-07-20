@@ -16,6 +16,7 @@ export const endpoints = {
     featured: '/products?featured=true&limit=4&sortBy=created_at&order=desc',
     detail: (id: string) => `/products/${id}`,
     reviews: (id: string) => `/products/${id}/reviews`,
+    reviewEligibility: (id: string) => `/products/${id}/reviews/eligibility`,
     featuredStatus: (id: string) => `/products/${id}/featured`,
   },
   cart: {
@@ -41,6 +42,13 @@ export const endpoints = {
   },
   shipping: {
     serviceability: '/shipping/serviceability',
+  },
+  returns: {
+    mine: '/returns',
+    evidence: '/returns/evidence',
+    create: (orderId: string) => `/returns/orders/${orderId}`,
+    detail: (returnId: string) => `/returns/${returnId}`,
+    cancel: (returnId: string) => `/returns/${returnId}/cancel`,
   },
   coupons: {
     validate: '/coupons/validate',

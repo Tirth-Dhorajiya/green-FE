@@ -3,7 +3,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useTheme } from 'next-themes';
 import { Sun, Moon, Monitor } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 
 export default function ThemeToggle() {
   const { theme, setTheme, resolvedTheme } = useTheme();
@@ -27,7 +26,7 @@ export default function ThemeToggle() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  if (!mounted) return <div className="w-10 h-10" />;
+  if (!mounted) return <div className="hidden" aria-hidden="true" />;
 
   const modes = [
     { name: 'light', icon: Sun, label: 'Light' },
@@ -35,40 +34,24 @@ export default function ThemeToggle() {
     { name: 'system', icon: Monitor, label: 'System' },
   ];
 
-  const currentMode = modes.find((m) => m.name === theme) || modes[2];
-
   return (
-    <div className="relative" ref={toggleRef}>
+    <div className="hidden" ref={toggleRef} aria-hidden="true">
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="p-2 text-foreground hover:text-primary hover:bg-primary/10 rounded-xl transition-all duration-300 focus:outline-none flex items-center justify-center"
         aria-label="Toggle theme"
       >
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={resolvedTheme}
-            initial={{ opacity: 0, rotate: -20, scale: 0.8 }}
-            animate={{ opacity: 1, rotate: 0, scale: 1 }}
-            exit={{ opacity: 0, rotate: 20, scale: 0.8 }}
-            transition={{ duration: 0.2 }}
-          >
+          <div key={resolvedTheme}>
             {resolvedTheme === 'dark' ? (
               <Moon className="w-5 h-5" />
             ) : (
               <Sun className="w-5 h-5" />
             )}
-          </motion.div>
-        </AnimatePresence>
+          </div>
       </button>
  
-      <AnimatePresence>
         {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: 10, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            className="absolute right-0 mt-2 w-36 glass rounded-lg shadow-premium py-2 z-50 overflow-hidden border border-black/10 dark:border-white/5"
-          >
+          <div className="menu-enter glass absolute right-0 z-50 mt-2 w-36 overflow-hidden rounded-lg border border-black/10 py-2 shadow-premium dark:border-white/5">
             {modes.map((mode) => (
               <button
                 key={mode.name}
@@ -86,9 +69,8 @@ export default function ThemeToggle() {
                 {mode.label}
               </button>
             ))}
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
     </div>
   );
 }

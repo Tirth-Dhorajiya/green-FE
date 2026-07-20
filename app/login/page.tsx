@@ -41,14 +41,14 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-20 px-4 sm:px-6 lg:px-8 bg-premium-gradient">
+    <div className="flex min-h-[calc(100svh-5rem)] items-center justify-center bg-premium-gradient px-4 py-10 sm:px-6 sm:py-16 lg:px-8">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         className="max-w-md w-full"
       >
-        <div className="glass rounded-xl p-10 shadow-premium border border-black/5 dark:border-white/10 relative overflow-hidden">
+        <div className="glass relative overflow-hidden rounded-xl border border-black/5 p-6 shadow-premium dark:border-white/10 sm:p-10">
           <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full blur-3xl -z-10" />
           <div className="absolute bottom-0 left-0 w-32 h-32 bg-secondary/20 rounded-full blur-3xl -z-10" />
           
@@ -57,7 +57,7 @@ export default function Login() {
               <Leaf className="w-4 h-4" />
               <span>Green Store</span>
             </Link>
-            <h2 className="text-4xl font-black text-foreground tracking-tight mb-3">Welcome Back.</h2>
+            <h2 className="mb-3 text-3xl font-black tracking-tight text-foreground sm:text-4xl">Welcome Back.</h2>
             <p className="text-gray-700 dark:text-gray-400 font-medium">
               Don&apos;t have an account?{' '}
               <Link href="/register" className="text-primary hover:underline font-bold transition-all">
@@ -114,7 +114,7 @@ export default function Login() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between px-1">
+            <div className="flex flex-wrap items-center justify-between gap-3 px-1">
               <div className="flex items-center">
                 <input
                   id="remember-me"

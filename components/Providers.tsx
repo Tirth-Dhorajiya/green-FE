@@ -8,32 +8,21 @@ import { ThemeProvider } from 'next-themes';
 import { WishlistProvider } from '../context/WishlistContext';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
-  const [mounted, setMounted] = React.useState(false);
-
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // Return early if not mounted to prevent hydration mismatch and script tag warnings
-  if (!mounted) {
-    return (
-      <AuthProvider>
-        <CartProvider>
-          <WishlistProvider>
-            <Toaster position="top-right" />
-            {children}
-          </WishlistProvider>
-        </CartProvider>
-      </AuthProvider>
-    );
-  }
-
   return (
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} storageKey="green-store-theme">
       <AuthProvider>
         <CartProvider>
           <WishlistProvider>
-            <Toaster position="top-right" />
+            <Toaster
+              position="top-right"
+              toastOptions={{
+                style: {
+                  background: 'var(--card-bg)',
+                  color: 'var(--foreground)',
+                  border: '1px solid var(--glass-border)',
+                },
+              }}
+            />
             {children}
           </WishlistProvider>
         </CartProvider>

@@ -108,7 +108,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         toast.success('Item removed from cart');
         await fetchCart();
       }
-    } catch (error: any) {
+    } catch {
       toast.error('Failed to remove item');
     } finally {
       setLoading(false);

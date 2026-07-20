@@ -41,9 +41,9 @@ export default function ConfirmationModal({
   };
 
   return (
-    <div className="fixed inset-0 z-[130] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="bg-card rounded-xl w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in duration-300 border border-black/5 dark:border-white/10">
-        <div className="p-8">
+    <div className="fixed inset-0 z-[130] flex items-end justify-center bg-black/60 p-0 backdrop-blur-sm animate-in fade-in duration-300 sm:items-center sm:p-4">
+      <div className="max-h-[92dvh] w-full max-w-md overflow-y-auto rounded-t-2xl border border-black/5 bg-card shadow-2xl animate-in zoom-in duration-300 dark:border-white/10 sm:rounded-xl">
+        <div className="p-5 sm:p-8">
           <div className="flex justify-between items-start mb-6">
             <div className={`p-4 rounded-lg ${iconStyles[variant]}`}>
               <AlertTriangle className="w-8 h-8" />
@@ -58,7 +58,7 @@ export default function ConfirmationModal({
             {message}
           </p>
 
-          <div className="flex gap-4">
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:gap-4">
             <button
               onClick={onClose}
               disabled={confirming}
