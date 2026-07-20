@@ -6,6 +6,7 @@ import { Clock, Headphones, Mail, MapPin, MessageSquare, PackageCheck, Phone } f
 import toast from 'react-hot-toast';
 import api from '../../services/api';
 import { endpoints } from '../../services/apiConfig';
+import Reveal from '../../components/Reveal';
 
 const supportOptions = [
   {
@@ -52,7 +53,7 @@ export default function ContactPage() {
     <main className="bg-background">
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
         <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-10">
-          <div>
+          <Reveal>
             <p className="text-xs font-black uppercase tracking-[0.22em] text-primary mb-4">Contact / Support</p>
             <h1 className="text-4xl md:text-6xl font-black tracking-tight text-foreground mb-6">
               We are here for orders and plant care.
@@ -62,21 +63,21 @@ export default function ContactPage() {
             </p>
 
             <div className="space-y-4">
-              <div className="flex gap-4 rounded-xl bg-card border border-black/5 dark:border-white/10 p-5">
+              <div className="motion-surface flex gap-4 rounded-xl bg-card border border-black/5 dark:border-white/10 p-5">
                 <Mail className="w-6 h-6 text-primary shrink-0" />
                 <div>
                   <h2 className="font-black text-foreground">Email</h2>
                   <a href="mailto:support@greenstore.com" className="text-gray-600 dark:text-gray-400 hover:text-primary">support@greenstore.com</a>
                 </div>
               </div>
-              <div className="flex gap-4 rounded-xl bg-card border border-black/5 dark:border-white/10 p-5">
+              <div className="motion-surface flex gap-4 rounded-xl bg-card border border-black/5 dark:border-white/10 p-5">
                 <Phone className="w-6 h-6 text-primary shrink-0" />
                 <div>
                   <h2 className="font-black text-foreground">Phone</h2>
                   <a href="tel:+910000000000" className="text-gray-600 dark:text-gray-400 hover:text-primary">+91 00000 00000</a>
                 </div>
               </div>
-              <div className="flex gap-4 rounded-xl bg-card border border-black/5 dark:border-white/10 p-5">
+              <div className="motion-surface flex gap-4 rounded-xl bg-card border border-black/5 dark:border-white/10 p-5">
                 <Clock className="w-6 h-6 text-primary shrink-0" />
                 <div>
                   <h2 className="font-black text-foreground">Hours</h2>
@@ -84,9 +85,9 @@ export default function ContactPage() {
                 </div>
               </div>
             </div>
-          </div>
+          </Reveal>
 
-          <div className="bg-card rounded-xl border border-black/5 dark:border-white/10 shadow-sm p-6 md:p-8">
+          <Reveal delay={0.1} className="motion-surface bg-card rounded-xl border border-black/5 dark:border-white/10 shadow-sm p-6 md:p-8">
             <h2 className="text-2xl font-black text-foreground mb-6">Send a message</h2>
             <form className="space-y-4" onSubmit={submitContact}>
               <div className="grid sm:grid-cols-2 gap-4">
@@ -112,23 +113,23 @@ export default function ContactPage() {
                 Message
                 <textarea rows={6} value={form.message} onChange={(event) => setForm({ ...form, message: event.target.value })} required minLength={10} className="mt-2 w-full rounded-lg border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-3 outline-none focus:ring-2 focus:ring-primary/20 resize-none" placeholder="Tell us how we can help" />
               </label>
-              <button type="submit" disabled={submitting} className="w-full bg-primary hover:bg-primary-dark text-white rounded-lg py-4 font-black transition disabled:opacity-60">
+              <button type="submit" disabled={submitting} className="living-cta w-full bg-primary hover:bg-primary-dark text-white rounded-lg py-4 font-black transition disabled:opacity-60">
                 {submitting ? 'Sending...' : 'Submit Request'}
               </button>
             </form>
-          </div>
+          </Reveal>
         </div>
       </section>
 
       <section className="border-t border-black/5 dark:border-white/10 bg-card/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
           <div className="grid md:grid-cols-3 gap-5">
-            {supportOptions.map(({ title, body, icon: Icon }) => (
-              <article key={title} className="bg-card rounded-xl border border-black/5 dark:border-white/10 p-6">
-                <Icon className="w-7 h-7 text-primary mb-4" />
+            {supportOptions.map(({ title, body, icon: Icon }, index) => (
+              <Reveal key={title} delay={index * 0.07} className="motion-surface bg-card rounded-xl border border-black/5 dark:border-white/10 p-6">
+                <Icon className="motion-icon w-7 h-7 text-primary mb-4" />
                 <h2 className="font-black text-foreground mb-2">{title}</h2>
                 <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{body}</p>
-              </article>
+              </Reveal>
             ))}
           </div>
           <div className="mt-8 flex flex-col sm:flex-row sm:items-center gap-3 text-gray-600 dark:text-gray-400">

@@ -39,6 +39,9 @@ export const endpoints = {
     razorpayOrder: '/payments/razorpay/order',
     razorpayVerify: '/payments/razorpay/verify',
   },
+  shipping: {
+    serviceability: '/shipping/serviceability',
+  },
   coupons: {
     validate: '/coupons/validate',
   },

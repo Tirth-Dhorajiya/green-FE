@@ -57,7 +57,7 @@ export default function Footer() {
             </p>
             <div className="flex space-x-4">
               {socialLinks.map(({ label, icon }) => (
-                <a key={label} href="#" aria-label={label} className="w-12 h-12 bg-black/5 dark:bg-white/5 rounded-lg flex items-center justify-center hover:bg-primary hover:text-white transition-all border border-black/10 dark:border-white/10 hover:border-primary">
+                <a key={label} href="#" aria-label={label} className="w-12 h-12 bg-black/5 dark:bg-white/5 rounded-lg flex items-center justify-center hover:-translate-y-1 hover:bg-primary hover:text-white transition-all border border-black/10 dark:border-white/10 hover:border-primary hover:shadow-lg hover:shadow-primary/20">
                   {icon}
                 </a>
               ))}

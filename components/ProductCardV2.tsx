@@ -1,35 +1,51 @@
 'use client';
 
 import React from 'react';
-import { BASE_URL } from '../services/api';
-import Link from 'next/link';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Heart, ShoppingCart } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
-import { motion } from 'framer-motion';
+import { BASE_URL } from '../services/api';
 import ConfirmationModal from './ConfirmationModal';
 
 interface Product {
   id: string;
   name: string;
-  description: string;
+  description?: string;
   price: string;
   category: string;
-  image_url: string;
+  image_url?: string;
+  thumbnail_url?: string;
   stock: number;
 }
+
+const fallbackImage = 'https://images.unsplash.com/photo-1463320726281-696a485928c7?q=80&w=600&auto=format&fit=crop';
 
 export default function ProductCardV2({ product }: { product: Product }) {
   const { addToCart } = useCart();
   const { isWishlisted, toggleWishlist } = useWishlist();
   const [confirmRemove, setConfirmRemove] = React.useState(false);
-  const imageUrl = product.image_url 
-    ? (product.image_url.startsWith('http') ? product.image_url : `${BASE_URL}${product.image_url}`)
-    : 'https://images.unsplash.com/photo-1463320726281-696a485928c7?q=80&w=600&auto=format&fit=crop';
+  const wishlisted = isWishlisted(product.id);
+  const stock = Number(product.stock);
+  const isOutOfStock = stock <= 0;
+  const isLowStock = stock > 0 && stock <= 5;
+  const rawImageUrl = product.thumbnail_url || product.image_url;
+  const imageUrl = rawImageUrl
+    ? (rawImageUrl.startsWith('http') ? rawImageUrl : `${BASE_URL}${rawImageUrl}`)
+    : fallbackImage;
+  const numericPrice = Number(product.price);
+  const formattedPrice = Number.isFinite(numericPrice)
+    ? new Intl.NumberFormat('en-IN', {
+        style: 'currency',
+        currency: 'INR',
+        minimumFractionDigits: 2,
+      }).format(numericPrice)
+    : product.price;
 
   const handleWishlistToggle = () => {
-    if (isWishlisted(product.id)) {
+    if (wishlisted) {
       setConfirmRemove(true);
       return;
     }
@@ -37,82 +53,89 @@ export default function ProductCardV2({ product }: { product: Product }) {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 40 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-      className="group relative flex flex-col bg-card rounded-xl overflow-hidden border border-black/10 dark:border-white/10 shadow-sm hover:border-primary/30 transition-all duration-700 hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.12)]"
-    >
-      {/* Visual Area */}
-      <div className="relative aspect-[3/4] overflow-hidden">
-        <Link href={`/products/${product.id}`} className="block w-full h-full">
-          <Image
-            src={imageUrl}
-            alt={product.name}
-            fill
-            sizes="(max-width: 768px) 100vw, 25vw"
-            className="object-cover w-full h-full scale-100 group-hover:scale-110 transition-transform duration-[1.5s] ease-out"
-          />
-        </Link>
-        
-        {/* Category Badge */}
-        <div className="absolute top-6 left-6">
-          <span className="px-4 py-1.5 rounded-full bg-white/95 dark:bg-black/70 backdrop-blur-md text-[10px] font-black uppercase tracking-widest text-primary border border-black/10 dark:border-white/20">
-            {product.category}
-          </span>
-        </div>
+    <>
+      <motion.article
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-40px' }}
+        transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+        className="group flex h-full flex-col rounded-2xl border border-black/10 bg-card p-3 shadow-sm transition-all duration-500 hover:-translate-y-1 hover:border-primary/30 hover:shadow-[0_24px_60px_-28px_rgba(6,78,59,0.45)] dark:border-white/10"
+      >
+        <div className="relative aspect-[4/5] overflow-hidden rounded-xl bg-black/5 dark:bg-white/5">
+          <Link href={`/products/${product.id}`} className="block h-full w-full" aria-label={`View ${product.name}`}>
+            <Image
+              src={imageUrl}
+              alt={product.name}
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1280px) 33vw, 25vw"
+              className={`h-full w-full object-cover transition duration-700 ease-out group-hover:scale-105 ${isOutOfStock ? 'grayscale-[35%]' : ''}`}
+            />
+            <span className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/35 to-transparent opacity-70" />
+          </Link>
 
-        {/* Floating Action */}
-        <div className="absolute top-6 right-6 flex gap-2">
+          <div className="absolute left-3 top-3 flex items-center gap-2">
+            <span className="rounded-full border border-white/50 bg-white/90 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.14em] text-primary shadow-sm backdrop-blur-md dark:border-white/10 dark:bg-black/70">
+              {product.category}
+            </span>
+            {isOutOfStock && (
+              <span className="rounded-full bg-gray-900/85 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.14em] text-white backdrop-blur-md">
+                Sold out
+              </span>
+            )}
+          </div>
+
           <button
             type="button"
             onClick={handleWishlistToggle}
-            className="w-12 h-12 rounded-full bg-white/90 dark:bg-black/90 backdrop-blur-md flex items-center justify-center text-foreground hover:bg-primary hover:text-white transition-all duration-500 opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 shadow-2xl"
-            aria-label={isWishlisted(product.id) ? 'Remove from wishlist' : 'Add to wishlist'}
+            className={`absolute right-3 top-3 flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border shadow-lg backdrop-blur-md transition-all duration-300 active:scale-90 ${
+              wishlisted
+                ? 'border-primary bg-primary text-white'
+                : 'border-white/50 bg-white/90 text-gray-800 hover:border-primary hover:bg-primary hover:text-white dark:border-white/10 dark:bg-black/70 dark:text-white'
+            }`}
+            aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+            aria-pressed={wishlisted}
           >
-            <Heart className={`w-5 h-5 ${isWishlisted(product.id) ? 'fill-current text-primary' : ''}`} />
+            <Heart className={`h-5 w-5 ${wishlisted ? 'fill-current' : ''}`} />
           </button>
         </div>
 
-        {/* Quick Add Overlay */}
-        <div className="absolute bottom-0 left-0 right-0 p-8 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out">
-           <button
-             onClick={() => addToCart(product.id, 1)}
-             disabled={product.stock <= 0}
-             className="w-full h-14 bg-primary text-white rounded-lg font-black text-sm uppercase tracking-widest flex items-center justify-center space-x-3 shadow-2xl shadow-primary/40 active:scale-95 transition-all"
-           >
-             <ShoppingCart className="w-4 h-4" />
-             <span>Instant Purchase</span>
-           </button>
-        </div>
-
-        {product.stock <= 0 && (
-          <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center px-10 text-center">
-            <span className="text-xl font-black uppercase tracking-[0.3em] text-foreground opacity-30">Sold Out</span>
+        <div className="flex flex-1 flex-col px-2 pb-2 pt-5">
+          <div className="mb-3 flex items-start justify-between gap-4">
+            <Link href={`/products/${product.id}`} className="min-w-0">
+              <h3 className="line-clamp-2 text-lg font-black leading-snug tracking-tight text-foreground transition-colors group-hover:text-primary">
+                {product.name}
+              </h3>
+            </Link>
+            <span className="shrink-0 text-lg font-black tracking-tight text-primary">
+              {formattedPrice}
+            </span>
           </div>
-        )}
-      </div>
 
-      {/* Content Area */}
-      <div className="p-6 sm:p-10 flex flex-col items-center text-center">
-        <h3 className="text-2xl sm:text-3xl font-black text-foreground tracking-tighter mb-2 group-hover:text-primary transition-colors duration-500 uppercase">
-          {product.name}
-        </h3>
-        <p className="text-gray-600 dark:text-gray-400 text-sm mb-6 font-medium leading-relaxed line-clamp-2 max-w-full sm:max-w-[80%]">
-          {product.description}
-        </p>
-        <div className="flex items-center gap-4">
-           <div className="h-[1px] w-8 bg-black/10 dark:bg-white/10" />
-           <span className="text-2xl font-black text-primary tracking-tight">
-             ₹{parseFloat(product.price).toFixed(2)}
-           </span>
-           <div className="h-[1px] w-8 bg-black/10 dark:bg-white/10" />
+          <p className="mb-5 line-clamp-2 flex-1 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+            {product.description || 'A thoughtfully selected product for your green space.'}
+          </p>
+
+          {(isOutOfStock || isLowStock) && (
+            <div className="mb-3 flex items-center gap-2 text-xs font-bold">
+              <span className={`h-2 w-2 rounded-full ${isOutOfStock ? 'bg-gray-400' : 'bg-amber-500'}`} />
+              <span className={isLowStock ? 'text-amber-600 dark:text-amber-400' : 'text-gray-600 dark:text-gray-400'}>
+                {isOutOfStock ? 'Currently unavailable' : `Only ${stock} left in stock`}
+              </span>
+            </div>
+          )}
+
+          <button
+            type="button"
+            onClick={() => addToCart(product.id, 1)}
+            disabled={isOutOfStock}
+            className="flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary px-5 text-sm font-black text-white shadow-lg shadow-primary/20 transition-all duration-300 hover:bg-primary-dark hover:shadow-primary/30 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500 disabled:shadow-none dark:disabled:bg-white/10 dark:disabled:text-gray-500"
+          >
+            <ShoppingCart className="h-4 w-4" />
+            <span>{isOutOfStock ? 'Out of Stock' : 'Add to Cart'}</span>
+          </button>
         </div>
-      </div>
+      </motion.article>
 
-      {/* Decorative Gradient */}
-      <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-primary/5 rounded-full blur-3xl group-hover:bg-primary/10 transition-all duration-700" />
       <ConfirmationModal
         isOpen={confirmRemove}
         onClose={() => setConfirmRemove(false)}
@@ -122,6 +145,6 @@ export default function ProductCardV2({ product }: { product: Product }) {
         confirmText="Remove"
         variant="danger"
       />
-    </motion.div>
+    </>
   );
 }

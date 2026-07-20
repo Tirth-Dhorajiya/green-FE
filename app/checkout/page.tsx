@@ -27,6 +27,11 @@ export default function Checkout() {
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number } | null>(null);
+  const [deliveryCheck, setDeliveryCheck] = useState<{ status: 'idle' | 'checking' | 'available' | 'unavailable' | 'error'; postalCode: string; message: string }>({
+    status: 'idle',
+    postalCode: '',
+    message: '',
+  });
   const [shippingAddress, setShippingAddress] = useState({
     firstName: '',
     lastName: '',
@@ -63,6 +68,30 @@ export default function Checkout() {
     setAppliedCoupon(null);
   }, [subtotal]);
 
+  const verifyDelivery = async () => {
+    const postalCode = shippingAddress.postalCode.trim();
+    if (!/^\d{6}$/.test(postalCode)) {
+      setDeliveryCheck({ status: 'unavailable', postalCode, message: 'Enter a valid 6-digit postal code.' });
+      return false;
+    }
+    if (deliveryCheck.status === 'available' && deliveryCheck.postalCode === postalCode) return true;
+
+    try {
+      setDeliveryCheck({ status: 'checking', postalCode, message: 'Checking delivery availability...' });
+      const response = await api.get(endpoints.shipping.serviceability, { params: { postalCode } });
+      if (!response.data.serviceable) {
+        setDeliveryCheck({ status: 'unavailable', postalCode, message: 'Delhivery prepaid delivery is not available for this postal code.' });
+        return false;
+      }
+      const place = [response.data.city, response.data.district].filter(Boolean).join(', ');
+      setDeliveryCheck({ status: 'available', postalCode, message: place ? `Delivery available to ${place}.` : 'Delivery is available.' });
+      return true;
+    } catch (error: any) {
+      setDeliveryCheck({ status: 'error', postalCode, message: error.response?.data?.message || 'Unable to verify delivery right now. Please try again.' });
+      return false;
+    }
+  };
+
   const applyCoupon = async () => {
     if (!couponCode.trim()) {
       toast.error('Enter a coupon code');
@@ -97,6 +126,10 @@ export default function Checkout() {
 
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!(await verifyDelivery())) {
+      toast.error('Confirm delivery availability before payment');
+      return;
+    }
     if (!window.Razorpay) {
       toast.error('Payment checkout is still loading. Please try again.');
       return;
@@ -231,7 +264,7 @@ export default function Checkout() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-foreground/70 mb-1">State</label>
-                  <input type="text" value={shippingAddress.state} onChange={(event) => setShippingAddress({ ...shippingAddress, state: event.target.value })} className="w-full px-4 py-2 border border-black/10 dark:border-white/10 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none bg-black/5 dark:bg-white/5 text-foreground" />
+                  <input type="text" required value={shippingAddress.state} onChange={(event) => setShippingAddress({ ...shippingAddress, state: event.target.value })} className="w-full px-4 py-2 border border-black/10 dark:border-white/10 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none bg-black/5 dark:bg-white/5 text-foreground" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-foreground/70 mb-1">Country</label>
@@ -239,7 +272,26 @@ export default function Checkout() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-foreground/70 mb-1">Postal Code</label>
-                  <input type="text" required value={shippingAddress.postalCode} onChange={(event) => setShippingAddress({ ...shippingAddress, postalCode: event.target.value })} className="w-full px-4 py-2 border border-black/10 dark:border-white/10 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none bg-black/5 dark:bg-white/5 text-foreground" />
+                  <input
+                    type="text"
+                    required
+                    inputMode="numeric"
+                    pattern="[0-9]{6}"
+                    maxLength={6}
+                    value={shippingAddress.postalCode}
+                    onBlur={verifyDelivery}
+                    onChange={(event) => {
+                      const postalCode = event.target.value.replace(/\D/g, '').slice(0, 6);
+                      setShippingAddress({ ...shippingAddress, postalCode });
+                      setDeliveryCheck({ status: 'idle', postalCode: '', message: '' });
+                    }}
+                    className="w-full px-4 py-2 border border-black/10 dark:border-white/10 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none bg-black/5 dark:bg-white/5 text-foreground"
+                  />
+                  {deliveryCheck.message && (
+                    <p className={`mt-2 text-xs font-bold ${deliveryCheck.status === 'available' ? 'text-emerald-600 dark:text-emerald-400' : deliveryCheck.status === 'checking' ? 'text-gray-500' : 'text-red-600 dark:text-red-400'}`}>
+                      {deliveryCheck.message}
+                    </p>
+                  )}
                 </div>
               </div>
               <div>

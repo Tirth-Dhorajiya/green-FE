@@ -112,3 +112,333 @@ textarea::placeholder {
   box-shadow: var(--shadow-premium-hover);
   border-color: var(--color-primary-light);
 }
+
+.motion-surface {
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.35s ease,
+    border-color 0.35s ease;
+}
+
+.motion-surface:hover {
+  transform: translateY(-5px);
+  border-color: color-mix(in srgb, var(--color-primary) 35%, transparent);
+  box-shadow: 0 18px 38px -24px rgba(6, 78, 59, 0.5);
+}
+
+.motion-icon {
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.35s ease;
+}
+
+.motion-surface:hover .motion-icon {
+  transform: translateY(-3px) rotate(5deg) scale(1.06);
+  background-color: color-mix(in srgb, var(--color-primary) 18%, transparent);
+}
+
+@keyframes ambient-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 8px, 0) rotate(-8deg);
+  }
+  50% {
+    transform: translate3d(18px, -18px, 0) rotate(8deg);
+  }
+}
+
+@keyframes ambient-breathe {
+  0%,
+  100% {
+    transform: scale(0.92);
+    opacity: 0.35;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.7;
+  }
+}
+
+@keyframes living-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes living-sway {
+  0%,
+  100% {
+    transform: rotate(-4deg) scale(1);
+  }
+  50% {
+    transform: rotate(5deg) scale(1.07);
+  }
+}
+
+@keyframes living-shine {
+  0%,
+  62% {
+    transform: translateX(-240%) rotate(18deg);
+  }
+  82%,
+  100% {
+    transform: translateX(520%) rotate(18deg);
+  }
+}
+
+@keyframes feature-card-float {
+  0%,
+  100% {
+    transform: translateY(0);
+    box-shadow: 0 8px 24px -20px rgba(16, 185, 129, 0.18);
+  }
+  50% {
+    transform: translateY(-9px);
+    box-shadow: 0 24px 45px -26px rgba(16, 185, 129, 0.48);
+  }
+}
+
+@keyframes feature-glow-drift {
+  0%,
+  100% {
+    transform: translate3d(-30%, -20%, 0) scale(0.8);
+    opacity: 0.15;
+  }
+  50% {
+    transform: translate3d(115%, 75%, 0) scale(1.2);
+    opacity: 0.42;
+  }
+}
+
+@keyframes feature-line-travel {
+  0% {
+    transform: translateX(-160%);
+    opacity: 0;
+  }
+  20%,
+  75% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(420%);
+    opacity: 0;
+  }
+}
+
+@keyframes feature-icon-breathe {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0.07);
+  }
+}
+
+@keyframes title-accent-breathe {
+  0%,
+  100% {
+    width: 2.5rem;
+    opacity: 0.55;
+  }
+  50% {
+    width: 5rem;
+    opacity: 1;
+  }
+}
+
+.ambient-orb {
+  position: absolute;
+  width: 18rem;
+  height: 18rem;
+  border-radius: 9999px;
+  background: rgba(16, 185, 129, 0.12);
+  filter: blur(80px);
+  animation: ambient-breathe 8s ease-in-out infinite;
+}
+
+.ambient-orb-one {
+  left: -9rem;
+  top: 18%;
+}
+
+.ambient-orb-two {
+  right: -10rem;
+  top: 62%;
+  width: 22rem;
+  height: 22rem;
+  animation-delay: -4s;
+}
+
+.ambient-leaf {
+  position: absolute;
+  width: 1.75rem;
+  height: 1.75rem;
+  color: var(--color-primary);
+  opacity: 0.13;
+  filter: drop-shadow(0 8px 16px rgba(6, 78, 59, 0.16));
+  animation: ambient-drift 7s ease-in-out infinite;
+}
+
+.ambient-leaf-one {
+  left: 2.5%;
+  top: 30%;
+}
+
+.ambient-leaf-two {
+  right: 3%;
+  top: 44%;
+  width: 2.25rem;
+  height: 2.25rem;
+  animation-delay: -2.5s;
+  animation-duration: 9s;
+}
+
+.ambient-leaf-three {
+  bottom: 8%;
+  left: 7%;
+  animation-delay: -5s;
+  animation-duration: 8s;
+}
+
+.living-float {
+  animation: living-float 5s ease-in-out infinite;
+}
+
+.living-icon {
+  transform-origin: 50% 90%;
+  animation: living-sway 4.5s ease-in-out infinite;
+}
+
+.living-cta {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.living-cta::after {
+  position: absolute;
+  top: -60%;
+  left: -35%;
+  width: 24%;
+  height: 220%;
+  content: '';
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.32), transparent);
+  animation: living-shine 5s ease-in-out infinite;
+}
+
+.living-section-title {
+  position: relative;
+  padding-bottom: 0.85rem;
+}
+
+.living-section-title::after {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  height: 0.2rem;
+  content: '';
+  border-radius: 9999px;
+  background: linear-gradient(90deg, transparent, var(--color-primary), transparent);
+  transform: translateX(-50%);
+  animation: title-accent-breathe 3.8s ease-in-out infinite;
+}
+
+.living-feature-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  animation: feature-card-float 6s ease-in-out infinite;
+}
+
+.living-feature-card-2 {
+  animation-delay: -2s;
+}
+
+.living-feature-card-3 {
+  animation-delay: -4s;
+}
+
+.living-feature-card::before {
+  position: absolute;
+  z-index: 0;
+  top: -5rem;
+  left: -5rem;
+  width: 11rem;
+  height: 11rem;
+  content: '';
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.28), transparent 68%);
+  filter: blur(8px);
+  animation: feature-glow-drift 8s ease-in-out infinite;
+}
+
+.living-feature-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.living-feature-card::after {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 24%;
+  height: 2px;
+  content: '';
+  background: linear-gradient(90deg, transparent, var(--color-primary-light), transparent);
+  animation: feature-line-travel 5.5s ease-in-out infinite;
+}
+
+.living-feature-card-2::before,
+.living-feature-card-2::after {
+  animation-delay: -2s;
+}
+
+.living-feature-card-3::before,
+.living-feature-card-3::after {
+  animation-delay: -4s;
+}
+
+.living-feature-icon {
+  animation: feature-icon-breathe 3.5s ease-in-out infinite;
+}
+
+.living-feature-card-2 .living-feature-icon {
+  animation-delay: -1.2s;
+}
+
+.living-feature-card-3 .living-feature-icon {
+  animation-delay: -2.4s;
+}
+
+.dark .ambient-leaf {
+  opacity: 0.2;
+}
+
+.dark .ambient-orb {
+  background: rgba(52, 211, 153, 0.1);
+}
+
+@media (max-width: 640px) {
+  .ambient-leaf-three,
+  .ambient-orb-two {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html,
+  body {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -47,6 +47,63 @@ function downloadReceipt(order: any) {
   URL.revokeObjectURL(url);
 }
 
+function ShipmentTracking({ shipments, compact = false }: { shipments?: any[]; compact?: boolean }) {
+  if (!shipments?.length) return null;
+  const visibleShipments = shipments.filter((shipment) => shipment.status !== 'failed');
+  if (!visibleShipments.length) return null;
+
+  return (
+    <div className={compact ? 'mt-5 space-y-3' : 'mt-6 space-y-4'}>
+      {visibleShipments.map((shipment) => (
+        <div key={shipment.id} className="rounded-xl border border-primary/10 bg-primary/5 p-4">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-primary">Delhivery shipment</p>
+              {!compact && <p className="text-xs text-gray-500 dark:text-gray-400">Reference: {shipment.provider_reference}</p>}
+            </div>
+            <span className="rounded-full bg-primary/10 px-3 py-1 text-[10px] font-black uppercase tracking-wide text-primary">
+              {String(shipment.status).replaceAll('_', ' ')}
+            </span>
+          </div>
+          <div className="grid gap-3">
+            {shipment.packages?.map((pkg: any) => (
+              <div key={pkg.id} className="rounded-xl border border-black/5 bg-card p-3 dark:border-white/10">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="font-black text-foreground">Parcel {pkg.sequence}</p>
+                    <p className="text-sm font-bold text-primary">AWB: {pkg.waybill || 'Pending'}</p>
+                    {!compact && <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{pkg.contents}</p>}
+                  </div>
+                  <div className="text-right text-xs">
+                    <p className="font-black capitalize text-foreground">{String(pkg.status).replaceAll('_', ' ')}</p>
+                    {pkg.estimated_delivery_date && <p className="mt-1 text-gray-500">ETA {new Date(pkg.estimated_delivery_date).toLocaleDateString()}</p>}
+                  </div>
+                </div>
+                {(pkg.status_description || pkg.status_location) && (
+                  <p className="mt-3 text-xs font-medium text-gray-600 dark:text-gray-400">
+                    {[pkg.status_description, pkg.status_location].filter(Boolean).join(' · ')}
+                  </p>
+                )}
+                {!compact && !!pkg.events?.length && (
+                  <div className="mt-4 space-y-3 border-t border-black/5 pt-4 dark:border-white/10">
+                    {pkg.events.map((event: any) => (
+                      <div key={event.id} className="relative pl-5 text-xs before:absolute before:left-0 before:top-1.5 before:h-2 before:w-2 before:rounded-full before:bg-primary">
+                        <p className="font-black text-foreground">{event.status}</p>
+                        <p className="text-gray-500 dark:text-gray-400">{dateTime(event.occurred_at)}{event.location ? ` · ${event.location}` : ''}</p>
+                        {event.instructions && <p className="mt-1 text-gray-500 dark:text-gray-400">{event.instructions}</p>}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function OrderDetailsModal({ order, onClose, onCancel }: { order: any; onClose: () => void; onCancel: (order: any) => void }) {
   const address = order.shipping_address || {};
   const activeStep = order.status === 'cancelled' ? -1 : orderSteps.indexOf(order.status);
@@ -104,13 +161,14 @@ function OrderDetailsModal({ order, onClose, onCancel }: { order: any; onClose: 
                 ))}
               </div>
             )}
-            {(order.courier_name || order.tracking_number || order.estimated_delivery_date) && (
+            {!order.shipments?.length && (order.courier_name || order.tracking_number || order.estimated_delivery_date) && (
               <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
                 <p><strong>Courier:</strong> {order.courier_name || '-'}</p>
                 <p><strong>Tracking:</strong> {order.tracking_number || '-'}</p>
                 <p><strong>ETA:</strong> {order.estimated_delivery_date ? new Date(order.estimated_delivery_date).toLocaleDateString() : '-'}</p>
               </div>
             )}
+            <ShipmentTracking shipments={order.shipments} />
           </section>
 
           <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-5">
@@ -413,7 +471,7 @@ export default function Profile() {
                         </div>
                       ))}
                     </div>
-                    {(order.courier_name || order.tracking_number || order.estimated_delivery_date) && (
+                    {!order.shipments?.length && (order.courier_name || order.tracking_number || order.estimated_delivery_date) && (
                       <div className="mt-5 rounded-xl bg-primary/5 border border-primary/10 p-4 text-sm text-foreground">
                         <p className="font-black mb-1">Tracking</p>
                         <p>Courier: {order.courier_name || '-'}</p>
@@ -421,6 +479,7 @@ export default function Profile() {
                         <p>Estimated delivery: {order.estimated_delivery_date ? new Date(order.estimated_delivery_date).toLocaleDateString() : '-'}</p>
                       </div>
                     )}
+                    <ShipmentTracking shipments={order.shipments} compact />
                     <div className="mt-6 flex flex-col sm:flex-row gap-3">
                       <button onClick={() => setSelectedOrder(order)} className="cursor-pointer rounded-xl bg-primary text-white px-5 py-3 font-black hover:bg-primary-dark transition">
                         View Details

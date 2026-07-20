@@ -58,7 +58,7 @@ export default function Home() {
             transition={{ duration: 0.8 }}
             className="max-w-4xl mx-auto"
           >
-            <div className="inline-flex items-center space-x-2 bg-primary/15 text-primary px-6 py-2.5 rounded-full text-sm font-bold mb-8 border border-primary/20 backdrop-blur-md">
+            <div className="living-float inline-flex items-center space-x-2 bg-primary/15 text-primary px-6 py-2.5 rounded-full text-sm font-bold mb-8 border border-primary/20 backdrop-blur-md">
               <Leaf className="w-4 h-4 animate-bounce" />
               <span>Experience The Botanical Revolution</span>
             </div>
@@ -73,7 +73,7 @@ export default function Home() {
             </p>
 
             <div className="flex flex-col sm:flex-row justify-center items-center gap-6">
-              <Link href="/products" className="w-full sm:w-auto bg-primary hover:bg-primary-dark text-white px-8 sm:px-12 py-4 sm:py-6 rounded-xl font-black text-base sm:text-xl transition-all duration-300 shadow-2xl shadow-primary/30 flex items-center justify-center group scale-100 hover:scale-105">
+              <Link href="/products" className="living-cta w-full sm:w-auto bg-primary hover:bg-primary-dark text-white px-8 sm:px-12 py-4 sm:py-6 rounded-xl font-black text-base sm:text-xl transition-all duration-300 shadow-2xl shadow-primary/30 flex items-center justify-center group scale-100 hover:scale-105">
                 Explore Collection <ArrowRight className="ml-3 w-6 h-6 group-hover:translate-x-2 transition-transform" />
               </Link>
               <Link href="/products?category=plants" className="w-full sm:w-auto glass hover:bg-black/5 dark:hover:bg-white/5 text-foreground px-8 sm:px-12 py-4 sm:py-6 rounded-xl font-black text-base sm:text-xl transition-all duration-300 border border-black/10 dark:border-white/10 flex items-center justify-center">
@@ -100,14 +100,14 @@ export default function Home() {
 
         {/* Floating Decorative Elements */}
         <div className="absolute top-20 right-10 w-32 h-32 bg-primary/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-20 left-10 w-48 h-48 bg-secondary/10 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-20 left-10 w-48 h-48 bg-secondary/10 rounded-full blur-3xl animate-pulse [animation-delay:1s]" />
       </section>
 
       {/* Features Section */}
       <section className="py-24 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-black text-foreground mb-4 tracking-tight">The Green Standard.</h2>
+            <h2 className="living-section-title text-3xl md:text-5xl font-black text-foreground mb-4 tracking-tight">The Green Standard.</h2>
             <p className="text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">We don&apos;t just sell plants; we provide a complete botanical experience designed for modern living.</p>
           </div>
 
@@ -123,10 +123,10 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
                 viewport={{ once: true }}
-                className="group bg-card p-10 rounded-xl shadow-sm hover:shadow-premium hover:bg-black/5 dark:hover:bg-white/5 transition-all duration-500 border border-black/5 dark:border-white/5"
+                className={`living-feature-card living-feature-card-${i + 1} group bg-card p-10 rounded-xl shadow-sm hover:shadow-premium hover:bg-black/5 dark:hover:bg-white/5 transition-all duration-500 border border-black/5 dark:border-white/5`}
               >
-                <div className={`w-16 h-16 ${feature.color} rounded-lg flex items-center justify-center mb-8 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-500`}>
-                  <feature.icon className="w-8 h-8" />
+                <div className={`living-feature-icon w-16 h-16 ${feature.color} rounded-lg flex items-center justify-center mb-8 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-500`}>
+                  <feature.icon className="living-icon w-8 h-8" />
                 </div>
                 <h3 className="text-2xl font-black text-foreground mb-4">{feature.title}</h3>
                 <p className="text-gray-500 dark:text-gray-400 leading-relaxed">{feature.desc}</p>

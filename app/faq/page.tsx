@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { CreditCard, HelpCircle, Leaf, PackageCheck, RefreshCcw, Truck } from 'lucide-react';
+import Reveal from '../../components/Reveal';
 
 const faqGroups = [
   {
@@ -82,7 +83,7 @@ export default function FaqPage() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
         <p className="text-xs font-black uppercase tracking-[0.22em] text-primary mb-4">Support / FAQ</p>
         <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-10 items-start">
-          <div>
+          <Reveal>
             <h1 className="text-4xl md:text-6xl font-black tracking-tight text-foreground mb-6">
               Answers before you order.
             </h1>
@@ -92,24 +93,25 @@ export default function FaqPage() {
             <Link href="/contact" className="inline-flex bg-primary text-white px-6 py-3 rounded-lg font-black hover:bg-primary-dark transition">
               Contact Support
             </Link>
-          </div>
+          </Reveal>
 
-          <div className="rounded-xl border border-primary/20 bg-primary/10 p-6 md:p-8">
-            <PackageCheck className="w-8 h-8 text-primary mb-4" />
+          <Reveal delay={0.1} className="motion-surface rounded-xl border border-primary/20 bg-primary/10 p-6 md:p-8">
+            <PackageCheck className="motion-icon w-8 h-8 text-primary mb-4" />
             <h2 className="text-2xl font-black text-foreground mb-3">Need order-specific help?</h2>
             <p className="text-gray-700 dark:text-gray-400 leading-relaxed">
               Include your order reference, payment reference, registered email, and photos if the product arrived damaged.
             </p>
-          </div>
+          </Reveal>
         </div>
       </section>
 
       <section className="border-y border-black/5 dark:border-white/10 bg-card/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 grid md:grid-cols-2 gap-6">
-          {faqGroups.map(({ title, icon: Icon, items }) => (
-            <article key={title} className="bg-card rounded-xl border border-black/5 dark:border-white/10 p-6 md:p-8 shadow-sm">
+          {faqGroups.map(({ title, icon: Icon, items }, index) => (
+            <Reveal key={title} delay={index * 0.07} className="h-full">
+            <article className="motion-surface h-full bg-card rounded-xl border border-black/5 dark:border-white/10 p-6 md:p-8 shadow-sm">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-11 h-11 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+                <div className="motion-icon w-11 h-11 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
                   <Icon className="w-6 h-6" />
                 </div>
                 <h2 className="text-2xl font-black text-foreground">{title}</h2>
@@ -126,6 +128,7 @@ export default function FaqPage() {
                 ))}
               </div>
             </article>
+            </Reveal>
           ))}
         </div>
       </section>

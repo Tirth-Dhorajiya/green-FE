@@ -5,6 +5,8 @@ import "./globals.css";
 import Providers from "../components/Providers";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import PageTransition from "../components/PageTransition";
+import AmbientBotanicalMotion from "../components/AmbientBotanicalMotion";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,7 +37,10 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col antialiased">
         <Providers>
           <Navbar />
-          <main className="flex-grow pt-24">{children}</main>
+          <AmbientBotanicalMotion />
+          <main className="flex-grow pt-24">
+            <PageTransition>{children}</PageTransition>
+          </main>
           <Footer />
         </Providers>
       </body>

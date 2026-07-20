@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Droplets, Leaf, Scissors, ShieldCheck, Sprout, Sun } from 'lucide-react';
+import Reveal from '../../components/Reveal';
 
 const careGuides = [
   {
@@ -36,7 +37,7 @@ export default function PlantCarePage() {
     <main className="bg-background">
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
         <div className="grid lg:grid-cols-[1.05fr_0.95fr] gap-10 items-center">
-          <div>
+          <Reveal>
             <p className="text-xs font-black uppercase tracking-[0.22em] text-primary mb-4">Plant Care Guide</p>
             <h1 className="text-4xl md:text-6xl font-black tracking-tight text-foreground mb-6">
               Keep every plant looking store-fresh.
@@ -52,11 +53,11 @@ export default function PlantCarePage() {
                 Ask For Help
               </Link>
             </div>
-          </div>
+          </Reveal>
 
-          <div className="bg-card border border-black/5 dark:border-white/10 rounded-xl p-6 shadow-sm">
+          <Reveal delay={0.1} className="motion-surface bg-card border border-black/5 dark:border-white/10 rounded-xl p-6 shadow-sm">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-11 h-11 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+              <div className="motion-icon w-11 h-11 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
                 <Leaf className="w-6 h-6" />
               </div>
               <div>
@@ -72,21 +73,23 @@ export default function PlantCarePage() {
                 </div>
               ))}
             </div>
-          </div>
+          </Reveal>
         </div>
       </section>
 
       <section className="border-y border-black/5 dark:border-white/10 bg-card/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
-            {careGuides.map(({ title, icon: Icon, body }) => (
-              <article key={title} className="bg-card border border-black/5 dark:border-white/10 rounded-xl p-6 shadow-sm">
-                <div className="w-11 h-11 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-5">
+            {careGuides.map(({ title, icon: Icon, body }, index) => (
+              <Reveal key={title} delay={index * 0.07} className="h-full">
+                <article className="motion-surface h-full bg-card border border-black/5 dark:border-white/10 rounded-xl p-6 shadow-sm">
+                <div className="motion-icon w-11 h-11 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-5">
                   <Icon className="w-6 h-6" />
                 </div>
                 <h2 className="text-lg font-black text-foreground mb-3">{title}</h2>
                 <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{body}</p>
-              </article>
+                </article>
+              </Reveal>
             ))}
           </div>
         </div>
@@ -94,15 +97,15 @@ export default function PlantCarePage() {
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid lg:grid-cols-[0.8fr_1.2fr] gap-8">
-          <div>
+          <Reveal>
             <p className="text-xs font-black uppercase tracking-[0.22em] text-primary mb-3">Troubleshooting</p>
             <h2 className="text-3xl font-black text-foreground">Quick plant checks</h2>
-          </div>
+          </Reveal>
           <div className="grid sm:grid-cols-2 gap-4">
-            {quickChecks.map((check) => (
-              <div key={check} className="rounded-lg border border-black/5 dark:border-white/10 bg-card p-5 text-gray-600 dark:text-gray-400 font-medium">
+            {quickChecks.map((check, index) => (
+              <Reveal key={check} delay={index * 0.06} className="motion-surface rounded-lg border border-black/5 dark:border-white/10 bg-card p-5 text-gray-600 dark:text-gray-400 font-medium">
                 {check}
-              </div>
+              </Reveal>
             ))}
           </div>
         </div>
