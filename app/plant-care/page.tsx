@@ -46,6 +46,9 @@ export default function PlantCarePage() {
               Simple care rules for watering, light, soil, pruning, and early problem spotting.
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
+              <Link href="/what-to-grow-now" className="bg-primary text-white px-6 py-3 rounded-lg font-black hover:bg-primary-dark transition">
+                Find What to Grow Now
+              </Link>
               <Link href="/products" className="bg-primary text-white px-6 py-3 rounded-lg font-black hover:bg-primary-dark transition">
                 Shop Easy-Care Plants
               </Link>

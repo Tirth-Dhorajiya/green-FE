@@ -77,6 +77,7 @@ export default function Footer() {
             <h4 className="mb-4 text-xs font-black uppercase tracking-widest text-foreground dark:text-white sm:mb-8">Company</h4>
             <ul className="space-y-3 sm:space-y-4">
               <li><Link href="/plant-care" className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-white transition-colors font-medium">Plant Care</Link></li>
+              <li><Link href="/what-to-grow-now" className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-white transition-colors font-medium">What to Grow Now</Link></li>
               <li><Link href="/faq" className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-white transition-colors font-medium">FAQ</Link></li>
               <li><Link href="/contact" className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-white transition-colors font-medium">Contact</Link></li>
               <li><Link href="/privacy-policy" className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-white transition-colors font-medium">Privacy</Link></li>

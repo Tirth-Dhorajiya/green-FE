@@ -56,4 +56,11 @@ export const endpoints = {
   contact: {
     submit: '/contact',
   },
+  growing: {
+    options: '/growing/options',
+    locations: '/growing/locations',
+    recommendations: '/growing/recommendations',
+    plans: '/growing/plans',
+    plan: (id: string) => `/growing/plans/${id}`,
+  },
 };

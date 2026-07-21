@@ -22,7 +22,7 @@ const fetchProducts = async (query: string): Promise<FeaturedProduct[]> => {
 };
 
 export const getFeaturedProducts = async () => {
-  const featured = await fetchProducts('featured=true&limit=4&sortBy=created_at&order=desc');
+  const featured = await fetchProducts('featured=true&limit=10&sortBy=created_at&order=desc');
   if (featured.length) return featured;
-  return fetchProducts('limit=4&sortBy=created_at&order=desc');
+  return fetchProducts('limit=10&sortBy=created_at&order=desc');
 };

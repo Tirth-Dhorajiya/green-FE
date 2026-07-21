@@ -8,6 +8,7 @@ const publicRoutes = [
   ['', 1, 'daily'],
   ['/products', 0.9, 'daily'],
   ['/plant-care', 0.7, 'monthly'],
+  ['/what-to-grow-now', 0.8, 'monthly'],
   ['/faq', 0.6, 'monthly'],
   ['/contact', 0.5, 'monthly'],
   ['/privacy-policy', 0.3, 'yearly'],

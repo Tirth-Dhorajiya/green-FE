@@ -86,6 +86,12 @@ export default function Navbar() {
               Plant Care
             </Link>
             <Link
+              href="/what-to-grow-now"
+              className={`text-sm font-black px-4 py-2 rounded-xl transition-all duration-300 ${isActive('/what-to-grow-now') ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-foreground hover:text-primary hover:bg-primary/10'}`}
+            >
+              Grow Now
+            </Link>
+            <Link
               href="/contact"
               className={`text-sm font-black px-4 py-2 rounded-xl transition-all duration-300 ${isActive('/contact') ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-foreground hover:text-primary hover:bg-primary/10'}`}
             >
@@ -186,6 +192,12 @@ export default function Navbar() {
                 className={`block px-4 py-3 rounded-xl text-base font-black transition-all ${isActive('/plant-care') ? 'bg-primary text-white shadow-lg' : 'text-foreground hover:text-primary hover:bg-primary/10'}`}
               >
                 Plant Care
+              </Link>
+              <Link
+                href="/what-to-grow-now"
+                className={`block px-4 py-3 rounded-xl text-base font-black transition-all ${isActive('/what-to-grow-now') ? 'bg-primary text-white shadow-lg' : 'text-foreground hover:text-primary hover:bg-primary/10'}`}
+              >
+                What to Grow Now
               </Link>
               <Link
                 href="/contact"
