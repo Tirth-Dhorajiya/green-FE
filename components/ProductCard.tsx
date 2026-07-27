@@ -1,37 +1,49 @@
 'use client';
 
 import React from 'react';
-import { BASE_URL } from '../services/api';
-import Link from 'next/link';
 import Image from 'next/image';
-import { ShoppingCart, Heart } from 'lucide-react';
+import Link from 'next/link';
+import { Heart, ShoppingCart } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
-import { motion } from 'framer-motion';
+import { BASE_URL } from '../services/api';
 import ConfirmationModal from './ConfirmationModal';
-import { productDescriptionText } from '../utils/productDescription';
 
 interface Product {
   id: string;
   name: string;
-  description: string;
+  description?: string;
   price: string;
   category: string;
-  image_url: string;
+  image_url?: string;
+  thumbnail_url?: string;
   stock: number;
 }
 
-export default function ProductCard({ product }: { product: Product }) {
+const fallbackImage = 'https://images.unsplash.com/photo-1463320726281-696a485928c7?q=80&w=600&auto=format&fit=crop';
+
+export default function ProductCard({ product, compactOnMobile = false }: { product: Product; compactOnMobile?: boolean }) {
   const { addToCart } = useCart();
   const { isWishlisted, toggleWishlist } = useWishlist();
   const [confirmRemove, setConfirmRemove] = React.useState(false);
-  const imageUrl = product.image_url 
-    ? (product.image_url.startsWith('http') ? product.image_url : `${BASE_URL}${product.image_url}`)
-    : 'https://images.unsplash.com/photo-1463320726281-696a485928c7?q=80&w=600&auto=format&fit=crop';
-  const descriptionText = productDescriptionText(product.description);
-
+  const wishlisted = isWishlisted(product.id);
+  const stock = Number(product.stock);
+  const isOutOfStock = stock <= 0;
+  const rawImageUrl = product.thumbnail_url || product.image_url;
+  const imageUrl = rawImageUrl
+    ? (rawImageUrl.startsWith('http') ? rawImageUrl : `${BASE_URL}${rawImageUrl}`)
+    : fallbackImage;
+  const numericPrice = Number(product.price);
+  const formattedPrice = Number.isFinite(numericPrice)
+    ? new Intl.NumberFormat('en-IN', {
+        style: 'currency',
+        currency: 'INR',
+        minimumFractionDigits: 2,
+      }).format(numericPrice)
+    : product.price;
   const handleWishlistToggle = () => {
-    if (isWishlisted(product.id)) {
+    if (wishlisted) {
       setConfirmRemove(true);
       return;
     }
@@ -39,70 +51,90 @@ export default function ProductCard({ product }: { product: Product }) {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5 }}
-      className="bg-card rounded-xl p-4 shadow-sm hover:shadow-premium-hover hover:bg-black/5 dark:hover:bg-white/5 transition-all duration-500 group border border-black/5 dark:border-white/5 flex flex-col h-full"
-    >
-      <div className="relative aspect-[4/5] overflow-hidden rounded-xl bg-black/5 dark:bg-white/5 mb-6">
-        <Link href={`/products/${product.id}`} className="block w-full h-full">
-          <Image
-            src={imageUrl}
-            alt={product.name}
-            fill
-            sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 25vw"
-            className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-700 ease-out"
-          />
-        </Link>
-        <div className="absolute right-3 top-3 flex translate-x-0 flex-col gap-2 opacity-100 transition-all duration-500 md:right-4 md:top-4 md:translate-x-12 md:opacity-0 md:group-hover:translate-x-0 md:group-hover:opacity-100">
+    <>
+      <motion.article
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-40px' }}
+        transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+        className={`group flex h-full flex-col border border-black/10 bg-card shadow-sm transition-all duration-500 hover:-translate-y-1 hover:border-primary/30 hover:shadow-[0_24px_60px_-28px_rgba(6,78,59,0.45)] dark:border-white/10 ${compactOnMobile ? 'rounded-xl p-2 sm:rounded-2xl sm:p-3' : 'rounded-2xl p-3'}`}
+      >
+        <div className={`relative overflow-hidden rounded-xl bg-black/5 dark:bg-white/5 ${compactOnMobile ? 'aspect-square sm:aspect-[4/5]' : 'aspect-[4/5]'}`}>
+          <Link href={`/products/${product.id}`} className="block h-full w-full" aria-label={`View ${product.name}`}>
+            <Image
+              src={imageUrl}
+              alt={product.name}
+              fill
+              sizes={compactOnMobile ? '(max-width: 639px) 50vw, (max-width: 1023px) 50vw, (max-width: 1279px) 33vw, 25vw' : '(max-width: 639px) 100vw, (max-width: 1023px) 50vw, (max-width: 1279px) 33vw, 25vw'}
+              className={`h-full w-full object-cover transition duration-700 ease-out group-hover:scale-105 ${isOutOfStock ? 'grayscale-[35%]' : ''}`}
+            />
+            <span className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/35 to-transparent opacity-70" />
+          </Link>
+
+          <div className="absolute left-2 top-2 flex max-w-[calc(100%-3.75rem)] flex-wrap items-center gap-1.5 sm:left-3 sm:top-3 sm:gap-2">
+            <span className={`rounded-full border border-white/50 bg-white/90 font-black uppercase text-primary shadow-sm backdrop-blur-md dark:border-white/10 dark:bg-black/70 ${compactOnMobile ? 'px-2 py-1 text-[8px] tracking-[0.1em] sm:px-3 sm:py-1.5 sm:text-[10px] sm:tracking-[0.14em]' : 'px-3 py-1.5 text-[10px] tracking-[0.14em]'}`}>
+              {product.category}
+            </span>
+            {isOutOfStock && (
+              <span className={`rounded-full bg-gray-900/85 font-black uppercase text-white backdrop-blur-md ${compactOnMobile ? 'px-2 py-1 text-[8px] tracking-[0.1em] sm:px-3 sm:py-1.5 sm:text-[10px] sm:tracking-[0.14em]' : 'px-3 py-1.5 text-[10px] tracking-[0.14em]'}`}>
+                Sold out
+              </span>
+            )}
+          </div>
+
           <button
             type="button"
             onClick={handleWishlistToggle}
-            className="p-3 bg-white/90 dark:bg-black/70 backdrop-blur-md text-foreground rounded-lg hover:bg-primary hover:text-white transition-colors shadow-premium border border-black/10 dark:border-white/5"
-            aria-label={isWishlisted(product.id) ? 'Remove from wishlist' : 'Add to wishlist'}
+            className={`absolute right-2 top-2 flex cursor-pointer items-center justify-center rounded-full border shadow-lg backdrop-blur-md transition-all duration-300 active:scale-90 sm:right-3 sm:top-3 sm:h-11 sm:w-11 ${compactOnMobile ? 'h-8 w-8' : 'h-10 w-10'} ${
+              wishlisted
+                ? 'border-primary bg-primary text-white'
+                : 'border-white/50 bg-white/90 text-gray-800 hover:border-primary hover:bg-primary hover:text-white dark:border-white/10 dark:bg-black/70 dark:text-white'
+            }`}
+            aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+            aria-pressed={wishlisted}
           >
-            <Heart className={`w-5 h-5 ${isWishlisted(product.id) ? 'fill-current text-primary' : ''}`} />
+            <Heart className={`${compactOnMobile ? 'h-4 w-4 sm:h-5 sm:w-5' : 'h-5 w-5'} ${wishlisted ? 'fill-current' : ''}`} />
           </button>
         </div>
-        {product.stock <= 0 && (
-          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-[2px] flex items-center justify-center p-6 text-center">
-            <span className="bg-white text-gray-900 px-6 py-2 rounded-lg text-xs font-black uppercase tracking-widest shadow-xl">Out of Stock</span>
-          </div>
-        )}
-      </div>
 
-      <div className="px-2 pb-2 flex flex-col flex-grow">
-        <div className="flex justify-between items-start mb-3 gap-2">
-          <div className="flex-grow">
-            <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-1 block">
-              {product.category}
-            </span>
-            <Link href={`/products/${product.id}`}>
-              <h3 className="line-clamp-2 break-words text-xl font-black leading-tight tracking-tight text-foreground transition-colors hover:text-primary" title={product.name}>
+        <div className={`flex flex-1 flex-col ${compactOnMobile ? 'px-1 pb-1 pt-3 sm:px-2 sm:pb-2 sm:pt-5' : 'px-2 pb-2 pt-5'}`}>
+          <div className={`flex min-w-0 items-start ${compactOnMobile ? 'mb-2 flex-col gap-1 sm:mb-3 sm:flex-row sm:justify-between sm:gap-3' : 'mb-3 justify-between gap-3'}`}>
+            <Link href={`/products/${product.id}`} className="min-w-0">
+              <h3 className={`line-clamp-2 break-words font-black leading-snug tracking-tight text-foreground transition-colors group-hover:text-primary ${compactOnMobile ? 'min-h-10 text-sm sm:min-h-0 sm:text-lg' : 'text-lg'}`} title={product.name}>
                 {product.name}
               </h3>
             </Link>
+            <span className={`shrink-0 font-black tracking-tight text-primary ${compactOnMobile ? 'text-sm sm:text-lg' : 'text-base sm:text-lg'}`}>
+              {formattedPrice}
+            </span>
           </div>
-          <span className="text-xl font-black text-foreground shrink-0">
-            ₹{parseFloat(product.price).toFixed(2)}
-          </span>
+
+          {isOutOfStock && (
+            <div className={`mb-3 items-center gap-2 font-bold ${compactOnMobile ? 'flex text-[10px] sm:text-xs' : 'flex text-xs'}`}>
+              <span className="h-2 w-2 rounded-full bg-gray-400" />
+              <span className="text-gray-600 dark:text-gray-400">Currently unavailable</span>
+            </div>
+          )}
+
+          <button
+            type="button"
+            onClick={() => addToCart(product.id, 1)}
+            disabled={isOutOfStock}
+            className={`mt-auto flex w-full cursor-pointer items-center justify-center rounded-xl bg-primary font-black text-white shadow-lg shadow-primary/20 transition-all duration-300 hover:bg-primary-dark hover:shadow-primary/30 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500 disabled:shadow-none dark:disabled:bg-white/10 dark:disabled:text-gray-500 ${compactOnMobile ? 'h-10 gap-1.5 px-2 text-xs sm:h-12 sm:gap-2 sm:px-5 sm:text-sm' : 'h-12 gap-2 px-5 text-sm'}`}
+          >
+            <ShoppingCart className="h-4 w-4" />
+            {compactOnMobile ? (
+              <>
+                <span className="sm:hidden">{isOutOfStock ? 'Sold out' : 'Add'}</span>
+                <span className="hidden sm:inline">{isOutOfStock ? 'Out of Stock' : 'Add to Cart'}</span>
+              </>
+            ) : (
+              <span>{isOutOfStock ? 'Out of Stock' : 'Add to Cart'}</span>
+            )}
+          </button>
         </div>
+      </motion.article>
 
-        <p className="mb-6 line-clamp-3 flex-grow text-sm leading-relaxed text-gray-600 dark:text-gray-400" title={descriptionText || undefined}>
-          {descriptionText}
-        </p>
-
-        <button
-          onClick={() => addToCart(product.id, 1)}
-          disabled={product.stock <= 0}
-          className="w-full flex items-center justify-center space-x-3 bg-black/5 dark:bg-white/5 hover:bg-primary text-foreground dark:text-white hover:text-white py-4 rounded-lg font-bold text-sm transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed group/btn shadow-lg hover:shadow-primary/30 border border-black/5 dark:border-white/10"
-        >
-          <ShoppingCart className="w-4 h-4 group-hover:-translate-y-1 transition-transform" />
-          <span>Add to Cart</span>
-        </button>
-      </div>
       <ConfirmationModal
         isOpen={confirmRemove}
         onClose={() => setConfirmRemove(false)}
@@ -112,8 +144,6 @@ export default function ProductCard({ product }: { product: Product }) {
         confirmText="Remove"
         variant="danger"
       />
-    </motion.div>
-
-
+    </>
   );
 }

@@ -6,6 +6,8 @@ import Link from 'next/link';
 import { ArrowRight, Leaf, Sprout } from 'lucide-react';
 import { animate, motion, useInView, useReducedMotion, type Variants } from 'framer-motion';
 
+const heroBlurDataUrl = 'data:image/webp;base64,UklGRmYAAABXRUJQVlA4IFoAAADQAwCdASoYAA0APwFsrU8rJiQiMAgBYCAJYwAAV7Bpr0atdSMRUgAA+LU10RvxtNA+nuw0RWz6lhynPoPuUlZDVVHFsa1F0Wo03jm4QMNN/lOzrGb4F7zswAA=';
+
 const heroItem: Variants = {
   hidden: { opacity: 0, y: 28, filter: 'blur(8px)' },
   visible: {
@@ -25,9 +27,9 @@ function ResponsiveHeroBackground() {
   const { props: mobileImage } = getImageProps({
     src: '/hero-mobile.webp',
     alt: '',
-    width: 941,
-    height: 1672,
-    quality: 84,
+    width: 750,
+    height: 1333,
+    quality: 68,
     sizes: '100vw',
   });
   const { props: desktopImage } = getImageProps({
@@ -35,8 +37,10 @@ function ResponsiveHeroBackground() {
     alt: 'Indoor botanical collection in a modern greenhouse',
     fill: true,
     priority: true,
-    quality: 75,
+    quality: 68,
     sizes: '100vw',
+    placeholder: 'blur',
+    blurDataURL: heroBlurDataUrl,
   });
 
   return (

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
-import ProductCardV2 from '../ProductCardV2';
+import ProductCard from '../ProductCard';
 import { ProductGridSkeleton } from '../Skeletons';
 
 export type FeaturedProduct = {
@@ -137,7 +137,7 @@ export default function FeaturedProductsSection({ products, loading }: { product
                 key={product.id}
                 className="min-w-0 shrink-0 snap-start basis-[calc((100%-0.75rem)/2)] md:basis-[calc((100%-3rem)/3)] xl:basis-[calc((100%-6rem)/4)]"
               >
-                <ProductCardV2 product={product} compactOnMobile />
+                <ProductCard product={product} compactOnMobile />
               </div>
             ))}
           </div>

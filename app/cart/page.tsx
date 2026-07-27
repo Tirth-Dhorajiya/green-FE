@@ -3,12 +3,15 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ArrowRight, Minus, Plus, ShoppingBag, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useCart } from '../../context/CartContext';
 import { BASE_URL } from '../../services/api';
 import { CartSkeleton } from '../../components/Skeletons';
 import ConfirmationModal from '../../components/ConfirmationModal';
+import { useAuth } from '../../context/AuthContext';
+import { createLoginUrl } from '../../utils/authRedirect';
 
 const fallbackImage = 'https://images.unsplash.com/photo-1463320726281-696a485928c7?q=80&w=600&auto=format&fit=crop';
 const currencyFormatter = new Intl.NumberFormat('en-IN', {
@@ -19,10 +22,18 @@ const currencyFormatter = new Intl.NumberFormat('en-IN', {
 
 export default function Cart() {
   const { cart, subtotal, loading, updateQuantity, removeFromCart } = useCart();
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
   const [removeItem, setRemoveItem] = React.useState<typeof cart[number] | null>(null);
   const itemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-  if (loading && cart.length === 0) return <CartSkeleton />;
+  React.useEffect(() => {
+    if (!authLoading && !user) {
+      router.replace(createLoginUrl('/cart'));
+    }
+  }, [authLoading, router, user]);
+
+  if (authLoading || !user || (loading && cart.length === 0)) return <CartSkeleton />;
 
   if (cart.length === 0) {
     return (

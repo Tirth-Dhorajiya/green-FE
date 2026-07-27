@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { ChevronDown, Search, SlidersHorizontal, X } from 'lucide-react';
 import api from '../../services/api';
 import { endpoints } from '../../services/apiConfig';
-import ProductCardV2 from '../../components/ProductCardV2';
+import ProductCard from '../../components/ProductCard';
 import { ProductGridSkeleton } from '../../components/Skeletons';
 
 interface ShopProduct {
@@ -302,7 +302,7 @@ function ProductsContent() {
           ) : products.length > 0 ? (
             <>
               <section aria-label="Shop products" className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-3 lg:gap-8 xl:grid-cols-4 xl:gap-12">
-                {products.map((product) => <ProductCardV2 key={product.id} product={product} compactOnMobile />)}
+                {products.map((product) => <ProductCard key={product.id} product={product} compactOnMobile />)}
               </section>
               {products.length < totalCount && (
                 <div className="mt-8 flex flex-col items-center gap-3 sm:mt-12">

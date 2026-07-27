@@ -14,6 +14,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { ProductDetailsSkeleton, SkeletonBlock } from '../../../components/Skeletons';
 import ConfirmationModal from '../../../components/ConfirmationModal';
+import ProductRichDescription from '../../../components/products/ProductRichDescription';
 import {
   ReviewImagePicker,
   ReviewPhotoGallery,
@@ -185,8 +186,6 @@ export default function ProductDetails() {
 
   const policyHours = Number(product.return_window_hours || (product.category === 'plants' ? 48 : 168));
   const policyWindow = policyWindowLabel(policyHours);
-  const description = String(product.description || '');
-  const hasFormattedDescription = /<\/?[a-z][\s\S]*>/i.test(description);
   const returnFeature = product.final_sale
     ? { title: 'Final Sale', sub: 'Damage, missing or wrong-item claims only' }
     : product.return_policy === 'damage_only'
@@ -271,11 +270,7 @@ export default function ProductDetails() {
             <p className="text-3xl font-bold text-foreground">₹{parseFloat(product.price).toFixed(2)}</p>
           </div>
 
-          <div className="mb-8 max-w-none text-gray-700 dark:text-gray-300 [&_a]:font-bold [&_a]:text-primary [&_a]:underline [&_blockquote]:my-5 [&_blockquote]:border-l-4 [&_blockquote]:border-primary/30 [&_blockquote]:pl-4 [&_h2]:mb-3 [&_h2]:mt-6 [&_h2]:text-2xl [&_h2]:font-black [&_h2]:text-foreground [&_h3]:mb-2 [&_h3]:mt-5 [&_h3]:text-xl [&_h3]:font-black [&_li]:my-1.5 [&_ol]:my-4 [&_ol]:list-decimal [&_ol]:pl-6 [&_p]:my-4 [&_p]:leading-7 [&_ul]:my-4 [&_ul]:list-disc [&_ul]:pl-6">
-            {hasFormattedDescription
-              ? <div dangerouslySetInnerHTML={{ __html: description }} />
-              : <p>{description}</p>}
-          </div>
+          <ProductRichDescription content={product.description} />
 
           <div className="mt-auto space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center gap-4">

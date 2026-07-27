@@ -9,6 +9,7 @@ import { endpoints } from '../../services/apiConfig';
 import toast from 'react-hot-toast';
 import { Eye, EyeOff, Leaf } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { getSafeReturnPath } from '../../utils/authRedirect';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -30,8 +31,8 @@ export default function Login() {
       const res = await api.post(endpoints.auth.login, { email, password });
       if (res.data.success) {
         login(res.data.token, res.data.user);
-        const redirectTo = new URLSearchParams(window.location.search).get('redirect') || '/';
-        router.push(redirectTo);
+        const requestedPath = new URLSearchParams(window.location.search).get('redirect');
+        router.replace(getSafeReturnPath(requestedPath));
       }
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Login failed');

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { ArrowRight, Heart } from 'lucide-react';
-import ProductCardV2 from '../../components/ProductCardV2';
+import ProductCard from '../../components/ProductCard';
 import { ProductGridSkeleton } from '../../components/Skeletons';
 import { useWishlist } from '../../context/WishlistContext';
 
@@ -43,7 +43,7 @@ export default function WishlistPage() {
       ) : (
         <section className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-3 lg:gap-8 xl:grid-cols-4 xl:gap-12">
           {wishlist.map((product) => (
-            <ProductCardV2 key={product.id} product={product} compactOnMobile />
+            <ProductCard key={product.id} product={product} compactOnMobile />
           ))}
         </section>
       )}
