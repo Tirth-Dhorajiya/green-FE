@@ -2,12 +2,9 @@ import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
-import Providers from '../components/Providers';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
-import PageTransition from '../components/PageTransition';
-import AmbientBotanicalMotion from '../components/AmbientBotanicalMotion';
-import { absoluteUrl, siteConfig } from '../utils/siteConfig';
+import Providers from '@/components/layout/Providers';
+import SiteShell from '@/components/layout/SiteShell';
+import { absoluteUrl, siteConfig } from '@/utils/siteConfig';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -119,12 +116,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema).replace(/</g, '\\u003c') }}
         />
         <Providers>
-          <Navbar />
-          <AmbientBotanicalMotion />
-          <main className="min-w-0 flex-grow overflow-x-clip pt-20 sm:pt-24">
-            <PageTransition>{children}</PageTransition>
-          </main>
-          <Footer />
+          <SiteShell>{children}</SiteShell>
         </Providers>
       </body>
     </html>

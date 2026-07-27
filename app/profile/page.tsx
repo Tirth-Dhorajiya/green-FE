@@ -1,17 +1,17 @@
 'use client';
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
-import api, { BASE_URL } from '../../services/api';
-import { endpoints } from '../../services/apiConfig';
+import api, { BASE_URL } from '@/services/api';
+import { endpoints } from '@/services/apiConfig';
 import { Package, User, ChevronRight, Save, X, Truck, CreditCard, MapPin, Download, Ban, LogOut, LayoutGrid, Heart, ShoppingCart, RotateCcw, CircleHelp } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
-import { ProfileSkeleton, SkeletonBlock } from '../../components/Skeletons';
-import ConfirmationModal from '../../components/ConfirmationModal';
-import OrderReturns from '../../components/OrderReturns';
+import { ProfileSkeleton, SkeletonBlock } from '@/components/ui/Skeletons';
+import ConfirmationModal from '@/components/ui/ConfirmationModal';
+import OrderReturns from '@/components/orders/OrderReturns';
 
 const orderSteps = ['pending', 'processing', 'shipped', 'delivered'];
 const currencyFormatter = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2 });

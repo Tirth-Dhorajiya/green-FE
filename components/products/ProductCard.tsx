@@ -5,10 +5,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Heart, ShoppingCart } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useCart } from '../context/CartContext';
-import { useWishlist } from '../context/WishlistContext';
-import { BASE_URL } from '../services/api';
-import ConfirmationModal from './ConfirmationModal';
+import { useCart } from '@/context/CartContext';
+import { useWishlist } from '@/context/WishlistContext';
+import { BASE_URL } from '@/services/api';
+import ConfirmationModal from '@/components/ui/ConfirmationModal';
 
 interface Product {
   id: string;

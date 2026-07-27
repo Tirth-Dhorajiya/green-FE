@@ -3,8 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
-import ProductCard from '../ProductCard';
-import { ProductGridSkeleton } from '../Skeletons';
+import ProductCard from '@/components/products/ProductCard';
+import { ProductGridSkeleton } from '@/components/ui/Skeletons';
 
 export type FeaturedProduct = {
   id: string;

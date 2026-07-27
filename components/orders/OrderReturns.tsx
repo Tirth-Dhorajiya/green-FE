@@ -3,8 +3,8 @@
 import { useMemo, useState } from 'react';
 import { Camera, CheckCircle2, PackageCheck, RotateCcw, Truck } from 'lucide-react';
 import toast from 'react-hot-toast';
-import api from '../services/api';
-import { endpoints } from '../services/apiConfig';
+import api from '@/services/api';
+import { endpoints } from '@/services/apiConfig';
 
 const reasons = [
   ['damaged', 'Damaged'],

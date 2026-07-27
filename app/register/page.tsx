@@ -3,9 +3,9 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '../../context/AuthContext';
-import api from '../../services/api';
-import { endpoints } from '../../services/apiConfig';
+import { useAuth } from '@/context/AuthContext';
+import api from '@/services/api';
+import { endpoints } from '@/services/apiConfig';
 import toast from 'react-hot-toast';
 import { Leaf } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -86,7 +86,7 @@ export default function Register() {
   };
 
   return (
-    <div className="flex min-h-[calc(100svh-5rem)] items-center justify-center bg-background px-4 py-10 transition-colors sm:px-6 sm:py-12 lg:px-8">
+    <div className="flex min-h-svh items-center justify-center bg-background px-4 py-10 transition-colors sm:px-6 sm:py-12 lg:px-8">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}

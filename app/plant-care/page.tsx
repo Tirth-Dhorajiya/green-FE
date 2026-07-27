@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Droplets, Leaf, Scissors, ShieldCheck, Sprout, Sun } from 'lucide-react';
-import Reveal from '../../components/Reveal';
+import Reveal from '@/components/ui/Reveal';
 
 const careGuides = [
   {

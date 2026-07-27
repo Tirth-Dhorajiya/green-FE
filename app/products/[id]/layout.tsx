@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
-import { API_BASE_URL, ASSET_BASE_URL } from '../../../services/apiConfig';
-import { productDescriptionText } from '../../../utils/productDescription';
-import { absoluteUrl, siteConfig } from '../../../utils/siteConfig';
+import { API_BASE_URL, ASSET_BASE_URL } from '@/services/apiConfig';
+import { productDescriptionText } from '@/utils/productDescription';
+import { absoluteUrl, siteConfig } from '@/utils/siteConfig';
 
 type Product = {
   id: string;

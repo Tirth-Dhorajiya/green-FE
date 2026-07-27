@@ -3,24 +3,24 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import api, { BASE_URL } from '../../../services/api';
-import { endpoints } from '../../../services/apiConfig';
-import { useAuth } from '../../../context/AuthContext';
-import { useCart } from '../../../context/CartContext';
-import { useWishlist } from '../../../context/WishlistContext';
+import api, { BASE_URL } from '@/services/api';
+import { endpoints } from '@/services/apiConfig';
+import { useAuth } from '@/context/AuthContext';
+import { useCart } from '@/context/CartContext';
+import { useWishlist } from '@/context/WishlistContext';
 import { ShoppingCart, Heart, ArrowLeft, ShieldCheck, Truck, RotateCcw, ChevronLeft, ChevronRight } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
-import { ProductDetailsSkeleton, SkeletonBlock } from '../../../components/Skeletons';
-import ConfirmationModal from '../../../components/ConfirmationModal';
-import ProductRichDescription from '../../../components/products/ProductRichDescription';
+import { ProductDetailsSkeleton, SkeletonBlock } from '@/components/ui/Skeletons';
+import ConfirmationModal from '@/components/ui/ConfirmationModal';
+import ProductRichDescription from '@/components/products/ProductRichDescription';
 import {
   ReviewImagePicker,
   ReviewPhotoGallery,
   ReviewPhotoLightbox,
   type ReviewPhoto,
-} from '../../../components/reviews/ReviewPhotos';
+} from '@/components/reviews/ReviewPhotos';
 
 interface ProductImage {
   url: string;

@@ -4,9 +4,9 @@ import Link from 'next/link';
 import { FormEvent, useState } from 'react';
 import { Clock, Headphones, Mail, MapPin, MessageSquare, PackageCheck, Phone } from 'lucide-react';
 import toast from 'react-hot-toast';
-import api from '../../services/api';
-import { endpoints } from '../../services/apiConfig';
-import Reveal from '../../components/Reveal';
+import api from '@/services/api';
+import { endpoints } from '@/services/apiConfig';
+import Reveal from '@/components/ui/Reveal';
 
 const supportOptions = [
   {

@@ -1,6 +1,6 @@
 import 'server-only';
-import type { FeaturedProduct } from '../components/home/FeaturedProductsSection';
-import { API_BASE_URL } from '../services/apiConfig';
+import type { FeaturedProduct } from '@/components/home/FeaturedProductsSection';
+import { API_BASE_URL } from '@/services/apiConfig';
 
 type ProductResponse = {
   success?: boolean;

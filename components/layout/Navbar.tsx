@@ -3,11 +3,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useAuth } from '../context/AuthContext';
-import { useCart } from '../context/CartContext';
+import { useAuth } from '@/context/AuthContext';
+import { useCart } from '@/context/CartContext';
 import { ShoppingCart, Heart, User, Menu, X, LogOut, Leaf } from 'lucide-react';
-import ThemeToggle from './ThemeToggle';
-import ConfirmationModal from './ConfirmationModal';
+import ThemeToggle from '@/components/layout/ThemeToggle';
+import ConfirmationModal from '@/components/ui/ConfirmationModal';
 
 export default function Navbar() {
   const { user, logout } = useAuth();

@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { CalendarDays, MapPin, ShoppingBag, Sprout } from 'lucide-react';
-import GrowingPlanner from '../../components/growing/GrowingPlanner';
-import { createPageMetadata } from '../../utils/metadata';
+import GrowingPlanner from '@/components/growing/GrowingPlanner';
+import { createPageMetadata } from '@/utils/metadata';
 
 export const metadata = createPageMetadata({
   title: 'What to Grow Now in India',

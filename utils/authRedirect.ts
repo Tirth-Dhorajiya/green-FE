@@ -1,3 +1,5 @@
+import { siteConfig } from '@/utils/siteConfig';
+
 const DEFAULT_RETURN_PATH = '/';
 
 export function getCurrentReturnPath(fallback = '/products') {
@@ -15,10 +17,10 @@ export function getSafeReturnPath(value: string | null, fallback = DEFAULT_RETUR
   if (!value || !value.startsWith('/') || value.startsWith('//')) return fallback;
 
   try {
-    const baseUrl = 'https://greenstore.local';
-    const resolvedUrl = new URL(value, baseUrl);
+    const allowedOrigin = new URL(siteConfig.url).origin;
+    const resolvedUrl = new URL(value, allowedOrigin);
 
-    if (resolvedUrl.origin !== baseUrl || resolvedUrl.pathname === '/login') {
+    if (resolvedUrl.origin !== allowedOrigin || resolvedUrl.pathname === '/login') {
       return fallback;
     }
 

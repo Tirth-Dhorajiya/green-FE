@@ -3,8 +3,8 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import api from '../../services/api';
-import { endpoints } from '../../services/apiConfig';
+import api from '@/services/api';
+import { endpoints } from '@/services/apiConfig';
 import toast from 'react-hot-toast';
 import { Leaf } from 'lucide-react';
 

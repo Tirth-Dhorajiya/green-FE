@@ -3,10 +3,10 @@
 import React, { Suspense, useCallback, useDeferredValue, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ChevronDown, Search, SlidersHorizontal, X } from 'lucide-react';
-import api from '../../services/api';
-import { endpoints } from '../../services/apiConfig';
-import ProductCard from '../../components/ProductCard';
-import { ProductGridSkeleton } from '../../components/Skeletons';
+import api from '@/services/api';
+import { endpoints } from '@/services/apiConfig';
+import ProductCard from '@/components/products/ProductCard';
+import { ProductGridSkeleton } from '@/components/ui/Skeletons';
 
 interface ShopProduct {
   id: string;
