@@ -2,9 +2,9 @@
 
 import Link from 'next/link';
 import { ArrowRight, Heart } from 'lucide-react';
-import ProductCard from '../../components/ProductCard';
-import { ProductGridSkeleton } from '../../components/Skeletons';
-import { useWishlist } from '../../context/WishlistContext';
+import ProductCard from '@/components/products/ProductCard';
+import { ProductGridSkeleton } from '@/components/ui/Skeletons';
+import { useWishlist } from '@/context/WishlistContext';
 
 export default function WishlistPage() {
   const { wishlist, loading } = useWishlist();

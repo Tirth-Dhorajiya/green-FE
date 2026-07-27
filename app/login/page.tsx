@@ -3,13 +3,13 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '../../context/AuthContext';
-import api from '../../services/api';
-import { endpoints } from '../../services/apiConfig';
+import { useAuth } from '@/context/AuthContext';
+import api from '@/services/api';
+import { endpoints } from '@/services/apiConfig';
 import toast from 'react-hot-toast';
 import { Eye, EyeOff, Leaf } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { getSafeReturnPath } from '../../utils/authRedirect';
+import { getSafeReturnPath } from '@/utils/authRedirect';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -42,7 +42,7 @@ export default function Login() {
   };
 
   return (
-    <div className="flex min-h-[calc(100svh-5rem)] items-center justify-center bg-premium-gradient px-4 py-10 sm:px-6 sm:py-16 lg:px-8">
+    <div className="flex min-h-svh items-center justify-center bg-premium-gradient px-4 py-10 sm:px-6 sm:py-16 lg:px-8">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

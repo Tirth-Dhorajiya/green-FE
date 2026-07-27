@@ -1,8 +1,8 @@
-import HomeHero from '../components/home/HomeHero';
-import GreenStandardSection from '../components/home/GreenStandardSection';
-import FeaturedProductsSection from '../components/home/FeaturedProductsSection';
-import GrowNowCtaSection from '../components/home/GrowNowCtaSection';
-import { getFeaturedProducts } from '../utils/serverProducts';
+import HomeHero from '@/components/home/HomeHero';
+import GreenStandardSection from '@/components/home/GreenStandardSection';
+import FeaturedProductsSection from '@/components/home/FeaturedProductsSection';
+import GrowNowCtaSection from '@/components/home/GrowNowCtaSection';
+import { getFeaturedProducts } from '@/utils/serverProducts';
 
 export const revalidate = 300;
 

@@ -10,12 +10,12 @@ import {
 } from 'lucide-react';
 import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
-import { useAuth } from '../../context/AuthContext';
-import { useCart } from '../../context/CartContext';
-import { useWishlist } from '../../context/WishlistContext';
-import api from '../../services/api';
-import { ASSET_BASE_URL, endpoints } from '../../services/apiConfig';
-import ConfirmationModal from '../ConfirmationModal';
+import { useAuth } from '@/context/AuthContext';
+import { useCart } from '@/context/CartContext';
+import { useWishlist } from '@/context/WishlistContext';
+import api from '@/services/api';
+import { ASSET_BASE_URL, endpoints } from '@/services/apiConfig';
+import ConfirmationModal from '@/components/ui/ConfirmationModal';
 
 type Region = { slug: string; name: string; summary: string };
 type LocationOption = { id: string; city: string; state: string; region: string; region_name: string };

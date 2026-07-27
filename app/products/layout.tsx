@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { createPageMetadata } from '../../utils/metadata';
+import { createPageMetadata } from '@/utils/metadata';
 
 export const metadata = createPageMetadata({
   title: 'Shop Plants, Seeds, Planters & Garden Tools',

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { CreditCard, HelpCircle, Leaf, PackageCheck, RefreshCcw, Truck } from 'lucide-react';
-import Reveal from '../../components/Reveal';
+import Reveal from '@/components/ui/Reveal';
 
 const faqGroups = [
   {

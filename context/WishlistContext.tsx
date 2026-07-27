@@ -2,8 +2,8 @@
 
 import React, { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
-import api from '../services/api';
-import { endpoints } from '../services/apiConfig';
+import api from '@/services/api';
+import { endpoints } from '@/services/apiConfig';
 import { useAuth } from './AuthContext';
 
 export interface WishlistProduct {

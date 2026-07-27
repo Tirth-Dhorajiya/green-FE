@@ -1,12 +1,12 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import api from '../services/api';
-import { endpoints } from '../services/apiConfig';
+import api from '@/services/api';
+import { endpoints } from '@/services/apiConfig';
 import { useAuth } from './AuthContext';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
-import { createLoginUrl, getCurrentReturnPath } from '../utils/authRedirect';
+import { createLoginUrl, getCurrentReturnPath } from '@/utils/authRedirect';
 
 interface CartItem {
   id: string;

@@ -1,17 +1,17 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useCart } from '../../context/CartContext';
-import { useAuth } from '../../context/AuthContext';
+import { useCart } from '@/context/CartContext';
+import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
-import api from '../../services/api';
-import { endpoints } from '../../services/apiConfig';
+import api from '@/services/api';
+import { endpoints } from '@/services/apiConfig';
 import toast from 'react-hot-toast';
 import { CreditCard, CheckCircle, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import Script from 'next/script';
 import { motion } from 'framer-motion';
-import { FormPageSkeleton } from '../../components/Skeletons';
+import { FormPageSkeleton } from '@/components/ui/Skeletons';
 
 declare global {
   interface Window {

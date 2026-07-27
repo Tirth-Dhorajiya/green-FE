@@ -1,8 +1,8 @@
 'use client';
 
 import React, { createContext, useCallback, useContext, useState, useEffect, ReactNode } from 'react';
-import api from '../services/api';
-import { endpoints } from '../services/apiConfig';
+import api from '@/services/api';
+import { endpoints } from '@/services/apiConfig';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 

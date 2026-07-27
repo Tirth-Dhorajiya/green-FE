@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
-import { API_BASE_URL } from '../services/apiConfig';
-import { absoluteUrl } from '../utils/siteConfig';
+import { API_BASE_URL } from '@/services/apiConfig';
+import { absoluteUrl } from '@/utils/siteConfig';
 
 type SitemapProduct = { id: string; updated_at?: string; created_at?: string };
 
